@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  SOLD_OUT
+}
+
+model Event {
+  id               String      @id @default(cuid())
+  slug             String      @unique
+  name             String
+  category         String
+  status           EventStatus @default(DRAFT)
+  shortDescription String
+  startDate        DateTime
+  endDate          DateTime?
+  time             String
+  location         String
+  heroImage        String?
+  heroVideo        String?
+  gallery          Json?
+  overview         Json?
+  mediaKit         Json?
+  agenda           Json?
+  speakers         Json?
+  sponsors         Json?
+  venue            Json?
+  contactUs        Json?
+  info             Json?
+  book             Json?
+  seoTitle         String
+  seoDescription   String
+  canonicalUrl     String
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  tickets          EventTicket[]
+  bookings         EventBooking[]
+}
+
+model EventTicket {
+  id          String @id @default(cuid())
+  eventId     String
+  name        String
+  price       Int
+  description String
+  quantity    Int
+  sold        Int    @default(0)
+  isFree      Boolean @default(false)
+  event       Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  bookings    EventBooking[]
+}
+
+model EventBooking {
+  id           String       @id @default(cuid())
+  eventId      String
+  ticketId     String?
+  attendeeName String
+  email        String
+  phone        String?
+  quantity     Int          @default(1)
+  amount       Int          @default(0)
+  paymentId    String?
+  status       String       @default("PENDING")
+  createdAt    DateTime     @default(now())
+  event        Event        @relation(fields: [eventId], references: [id])
+  ticket       EventTicket? @relation(fields: [ticketId], references: [id])
+}

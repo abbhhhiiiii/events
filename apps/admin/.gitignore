@@ -1,0 +1,9 @@
+.next/
+out/
+node_modules/
+.turbo/
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+*.log
