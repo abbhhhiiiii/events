@@ -86,13 +86,13 @@ export function Hero({
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Auto-slide logic (Sirf tab chalega jab 1 se zyada events honge)
+  // Auto-slide logic
   useEffect(() => {
     if (displayEvents.length <= 1) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % displayEvents.length);
-    }, 5000); // 5 seconds timer for a calm, readable pace
+    }, 3000); // 5 seconds timer
 
     return () => clearInterval(interval);
   }, [displayEvents.length]);
@@ -109,148 +109,154 @@ export function Hero({
         width: "100%", 
         height: detail ? "40vh" : "60vh", 
         minHeight: "500px",
-        overflow: "hidden",
+        overflow: "hidden", // Bahar nikalte hue slides ko chupane ke liye
         backgroundColor: "#111"
       }}
     >
-      {displayEvents.map((ev, index) => {
-        const image = ev.image || FALLBACK_IMAGE;
-        const isActive = currentIndex === index;
+      {/* Sliding Track - Ye div horizontally slide karega */}
+      <div
+        style={{
+          display: "flex",
+          width: "100%",
+          height: "100%",
+          transition: "transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
+          transform: `translateX(-${currentIndex * 100}%)`, // Yahan se horizontal slide ka jadoo ho raha hai
+        }}
+      >
+        {displayEvents.map((ev, index) => {
+          const image = ev.image || FALLBACK_IMAGE;
 
-        return (
-          <div
-            key={ev.id}
-            style={{
-              position: "absolute",
-              inset: 0,
-              opacity: isActive ? 1 : 0,
-              transition: "opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1)",
-              zIndex: isActive ? 1 : 0,
-            }}
-          >
-            {/* Full Background Image */}
-            <Image
-              src={image}
-              alt={ev.name}
-              fill
-              priority={index === 0}
-              sizes="100vw"
-              style={{ objectFit: "cover" }}
-            />
-
-            {/* Dark Gradient Overlay: Left se dark hoga taaki text clear dikhe */}
+          return (
             <div
+              key={ev.id}
               style={{
-                position: "absolute",
-                inset: 0,
-                background: "linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)",
-                pointerEvents: "none",
+                minWidth: "100%", // Har slide poori width legi
+                height: "100%",
+                position: "relative",
               }}
-            />
+            >
+              {/* Full Background Image */}
+              <Image
+                src={image}
+                alt={ev.name}
+                fill
+                priority={index === 0}
+                sizes="100vw"
+                style={{ objectFit: "cover" }}
+              />
 
-
-
-            {/* Left Aligned Content Block */}
-            <div className="site-shell" style={{ height: "100%", position: "relative", zIndex: 2 }}>
+              {/* Dark Gradient Overlay: Left se dark hoga taaki text clear dikhe */}
               <div
                 style={{
                   position: "absolute",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  maxWidth: "650px",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "1.25rem",
-                  color: "#fff",
+                  inset: 0,
+                  background: "linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)",
+                  pointerEvents: "none",
                 }}
-              >
-                {/* Small Event Label */}
-                <span
-                  style={{
-                    backgroundColor: "var(--brand-color, #e11d48)",
-                    color: "white",
-                    padding: "0.25rem 0.75rem",
-                    borderRadius: "4px",
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.1em",
-                    width: "fit-content",
-                    boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
-                  }}
-                >
-                  {ev.type ?? "SME EVENT"}
-                </span>
+              />
 
-                <h1 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", lineHeight: 1.1, margin: 0, color: "#fff", textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}>
-                  {ev.name}
-                </h1>
-
+              {/* Left Aligned Content Block */}
+              <div className="site-shell" style={{ height: "100%", position: "relative", zIndex: 2 }}>
                 <div
                   style={{
+                    position: "absolute",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    maxWidth: "650px",
                     display: "flex",
-                    flexWrap: "wrap",
-                    gap: "1.5rem",
-                    alignItems: "center",
-                    opacity: 0.9,
-                    fontWeight: 500,
-                    fontSize: "1.1rem"
+                    flexDirection: "column",
+                    gap: "1.25rem",
+                    color: "#fff",
                   }}
                 >
-                  {ev.startDate && (
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <Calendar size={18} />
-                      <span>
-                        {new Date(ev.startDate).toLocaleDateString("en-IN", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        })}
-                      </span>
-                    </div>
-                  )}
-
-                  {ev.startTime && (
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <Clock size={18} />
-                      <span>{ev.startTime}</span>
-                    </div>
-                  )}
-
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <MapPin size={18} />
-                    <span>{ev.location}</span>
-                  </div>
-                </div>
-
-                <p style={{ fontSize: "1.125rem", lineHeight: 1.6, opacity: 0.85, margin: 0, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                  {ev.overview?.content ?? ev.overview?.heading ?? ""}
-                </p>
-
-                <div style={{ marginTop: "1rem" }}>
-                  <Link
-                    className="btn btn-primary"
-                    href={detail ? "#book" : `/events/${ev.id}`}
+                  {/* Small Event Label */}
+                  <span
                     style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
-                      padding: "0.75rem 1.5rem",
-                      fontWeight: 600,
-                      backgroundColor: "#fff",
-                      color: "#000",
-                      border: "none",
-                      borderRadius: "4px"
+                      backgroundColor: "var(--brand-color, #e11d48)",
+                      color: "white",
+                      padding: "0.25rem 0.75rem",
+                      borderRadius: "4px",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.1em",
+                      width: "fit-content",
+                      boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
                     }}
                   >
-                    {detail ? "Book Tickets" : "Know More"} <ArrowRight size={18} />
-                  </Link>
+                    {ev.type ?? "SME EVENT"}
+                  </span>
+
+                  <h1 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", lineHeight: 1.1, margin: 0, color: "#fff", textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}>
+                    {ev.name}
+                  </h1>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "1.5rem",
+                      alignItems: "center",
+                      opacity: 0.9,
+                      fontWeight: 500,
+                      fontSize: "1.1rem"
+                    }}
+                  >
+                    {ev.startDate && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <Calendar size={18} />
+                        <span>
+                          {new Date(ev.startDate).toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}
+                        </span>
+                      </div>
+                    )}
+
+                    {ev.startTime && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <Clock size={18} />
+                        <span>{ev.startTime}</span>
+                      </div>
+                    )}
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <MapPin size={18} />
+                      <span>{ev.location}</span>
+                    </div>
+                  </div>
+
+                  <p style={{ fontSize: "1.125rem", lineHeight: 1.6, opacity: 0.85, margin: 0, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                    {ev.overview?.content ?? ev.overview?.heading ?? ""}
+                  </p>
+
+                  <div style={{ marginTop: "1rem" }}>
+                    <Link
+                      className="btn btn-primary"
+                      href={detail ? "#book" : `/events/${ev.id}`}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        padding: "0.75rem 1.5rem",
+                        fontWeight: 600,
+                        backgroundColor: "#fff",
+                        color: "#000",
+                        border: "none",
+                        borderRadius: "4px"
+                      }}
+                    >
+                      {detail ? "Book Tickets" : "Know More"} <ArrowRight size={18} />
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
 
       {/* Slider Navigation Dots (Only if multiple events) */}
       {displayEvents.length > 1 && (

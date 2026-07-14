@@ -58,7 +58,7 @@ export default async function HomePage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-      <Hero event={featured} />
+      <Hero events={allEvents} />
 
       <section className="section" id="upcoming">
         <div className="site-shell">
