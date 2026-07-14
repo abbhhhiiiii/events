@@ -149,6 +149,7 @@ export function Hero({
             />
 
 
+
             {/* Left Aligned Content Block */}
             <div className="site-shell" style={{ height: "100%", position: "relative", zIndex: 2 }}>
               <div
