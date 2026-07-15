@@ -1,8 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, Search, X } from "lucide-react";
-import { useState } from "react";
+import { 
+  Menu, 
+  Search, 
+  X, 
+  Instagram, 
+  Facebook, 
+  Twitter, 
+  Youtube, 
+  Accessibility 
+} from "lucide-react";
+import { useState, useEffect } from "react";
+import Image from "next/image";
 
 const links = [
   ["Home", "/"],
@@ -14,61 +24,194 @@ const links = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Scroll track karne ke liye effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <header className="header">
-      <div className="utility-bar">
-        <div className="site-shell">
-          <span>SME EVENTS</span>
-          <span className="utility-links">
-            LinkedIn &nbsp; X &nbsp; Instagram
-          </span>
+    // Header fixed taaki hero section par float kare
+    <header className="fixed top-0 z-50 w-full flex flex-col transition-all duration-500">
+      
+      {/* Top Utility Bar - Hamesha Black/Premium Dark rahega */}
+      <div className="bg-[#0a0a0a] text-white/80 py-1 border-b border-white/10">
+        <div className="max-w-[1630px] mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center text-xs md:text-sm font-medium">
+          
+          {/* Left Social Icons */}
+          <div className="flex items-center gap-5">
+            <Link href="#" className="hover:text-white transition-colors" aria-label="Instagram">
+              <Instagram size={16} />
+            </Link>
+            <Link href="#" className="hover:text-white transition-colors" aria-label="Facebook">
+              <Facebook size={16} />
+            </Link>
+            <Link href="#" className="hover:text-white transition-colors" aria-label="Twitter">
+              <Twitter size={16} />
+            </Link>
+            <Link href="#" className="hover:text-white transition-colors" aria-label="Youtube">
+              <Youtube size={16} />
+            </Link>
+          </div>
+
+          {/* Right Links & Accessibility */}
+          <div className="flex items-center gap-6">
+            <Link href="#" className="hover:text-white transition-colors">Help</Link>
+            <Link href="#" className="hover:text-white transition-colors">FAQs</Link>
+            <button 
+              className="bg-white text-black p-1 rounded-full hover:bg-gray-200 transition-colors"
+              aria-label="Accessibility options"
+            >
+              <Accessibility size={16} />
+            </button>
+          </div>
+          
         </div>
       </div>
-      <div className="main-nav">
-        <div className="site-shell header-inner">
-          <Link href="/" className="brand" aria-label="SME Events home">
-            <span>SME</span>
-            <small>EVENTS</small>
+
+      {/* Main Navbar - Scroll hone par Transparent se White hoga */}
+      <div 
+        className={`transition-all duration-500 ease-in-out ${
+          isScrolled ? "bg-white shadow-lg py-0" : "bg-transparent py-2"
+        }`}
+      >
+        {/* flex & justify-between ensures logo goes left and nav/icon goes right */}
+        <div className="max-w-[1630px] mx-auto flex justify-between items-stretch h-16 md:h-20 px-4 sm:px-6 lg:px-8">
+          
+          {/* Brand Logo - Image */}
+          <Link   
+            href="/" 
+            className="flex items-center group" 
+            aria-label="SME Events home"
+          >
+            {/* Wrapper div for Next.js Image fill to work perfectly */}
+            <div className="relative w-[130px] h-[45px] md:w-[90px] md:h-[55px]">
+              <Image
+                src="/sme-event.png"
+                alt="SME Events Logo"
+                fill
+                className="object-contain transition-transform duration-300 ease-in-out group-hover:scale-105"
+                priority // Isse logo fast load hoga
+              />
+            </div>
           </Link>
-          <nav className="desktop-nav" aria-label="Primary navigation">
-            {links.map(([label, href]) => (
-              <Link key={href} href={href}>
-                {label}
-              </Link>
-            ))}
-            <Link className="nav-calendar" href="/#upcoming">
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-stretch" aria-label="Primary navigation">
+            {/* Links Container */}
+            <div className="flex items-center gap-8 mr-8">
+              {links.map(([label, href]) => (
+                <Link 
+                  key={href} 
+                  href={href}
+                  className={`text-[15px] font-medium transition-colors duration-300 whitespace-nowrap ${
+                    isScrolled 
+                      ? "text-gray-700 hover:text-black" 
+                      : "text-white hover:text-white/70 drop-shadow-md"
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+            
+            {/* Events Calendar Button */}
+            <Link 
+              className="flex items-center justify-center px-8 bg-[#e31837] text-white text-[15px] font-medium hover:bg-red-800 transition-colors whitespace-nowrap" 
+              href="/#upcoming"
+            >
               Events Calendar
             </Link>
-            <Link
-              className="nav-search"
-              href="/#upcoming"
+            
+            {/* Search Icon */}
+            <button
+              className={`flex items-center justify-center px-6 transition-colors duration-300 ${
+                isScrolled 
+                  ? "hover:bg-gray-100 bg-gray-100 text-black" 
+                  : "hover:bg-white/10 bg-gray-100/20 text-white"
+              }`}
               aria-label="Search events"
             >
-              <Search size={20} />
-            </Link>
+              <Search size={22} />
+            </button>
           </nav>
-          <button
-            className="mobile-toggle"
-            type="button"
-            aria-label="Open menu"
-            aria-expanded={open}
-            onClick={() => setOpen(!open)}
+
+          {/* Mobile Toggle Button - Strictly aligned right */}
+          <div className="md:hidden flex items-center">
+            <button
+              className={`flex items-center justify-center p-2 rounded-md transition-colors duration-300 ${
+                isScrolled ? "text-black hover:bg-gray-100" : "text-white hover:bg-white/10"
+              }`}
+              type="button"
+              aria-label="Open menu"
+              aria-expanded={open}
+              onClick={() => setOpen(!open)}
+            >
+              {open ? <X size={28} /> : <Menu size={28} />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Drawer Overlay */}
+      {open && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      
+      {/* Mobile Drawer Menu - Slides in from RIGHT */}
+      <nav
+        className={`fixed top-0 right-0 h-full w-72 bg-white shadow-2xl z-50 transform transition-transform duration-400 ease-out md:hidden flex flex-col pt-4 ${
+          open ? "translate-x-0" : "translate-x-full"
+        }`}
+        aria-label="Mobile navigation"
+      >
+        {/* Close Button Inside Drawer (Top Right) */}
+        <div className="flex justify-end px-4 mb-8">
+          <button 
+            onClick={() => setOpen(false)} 
+            className="p-2 text-gray-400 hover:text-black transition-colors rounded-full hover:bg-gray-100"
+            aria-label="Close menu"
           >
-            {open ? <X /> : <Menu />}
+            <X size={26} />
           </button>
         </div>
-        <nav
-          className={`mobile-drawer ${open ? "open" : ""}`}
-          aria-label="Mobile navigation"
-        >
+        
+        {/* Drawer Links */}
+        <div className="flex flex-col px-8 gap-6">
           {links.map(([label, href]) => (
-            <Link key={href} href={href} onClick={() => setOpen(false)}>
+            <Link 
+              key={href} 
+              href={href} 
+              onClick={() => setOpen(false)}
+              className="text-lg font-medium text-gray-800 hover:text-black transition-colors"
+            >
               {label}
             </Link>
           ))}
-        </nav>
-      </div>
+          <div className="w-full h-px bg-gray-100 my-2" />
+          <Link 
+            href="/#upcoming" 
+            onClick={() => setOpen(false)}
+            className="text-lg font-bold text-[#e31837]"
+          >
+            Events Calendar
+          </Link>
+        </div>
+      </nav>
     </header>
   );
 }

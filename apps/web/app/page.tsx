@@ -9,7 +9,7 @@ import { getFeaturedEvent, getPastEvents, getUpcomingEvents, listEvents } from "
 import type { LucideIcon } from "lucide-react";
 
 const Newsletter = dynamic(() => import("../components/newsletter").then((mod) => mod.Newsletter), {
-  loading: () => <div className="newsletter">Loading newsletter...</div>
+  loading: () => <div className="p-10 text-center text-gray-500 animate-pulse">Loading newsletter...</div>
 });
 
 export const revalidate = 300;
@@ -48,7 +48,7 @@ export default async function HomePage() {
     startDate: featured.startDate,
     location: {
       "@type": "Place",
-     name: featured.venue?.name ?? featured.location,
+      name: featured.venue?.name ?? featured.location,
       address: featured.location
     },
     image: featured.image,
@@ -56,18 +56,21 @@ export default async function HomePage() {
   };
 
   return (
-    <>
+    <main className="min-h-screen bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      
+      {/* Hero Section */}
       <Hero events={allEvents} />
 
-      <section className="section" id="upcoming">
-        <div className="site-shell">
+      {/* Upcoming Events */}
+      <section className="py-20 lg:py-28" id="upcoming">
+        <div className="max-w-[1630px] mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="Upcoming Events"
             title="Upcoming Events"
             copy="Discover business summits, leadership forums, and conversations that matter."
           />
-          <div className="event-grid">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mt-12">
             {allEvents.map((event) => (
               <EventCard event={event} key={event.id} />
             ))}
@@ -75,14 +78,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section alt" id="past-events">
-        <div className="site-shell">
+      {/* Past Events */}
+      <section className="py-20 lg:py-28 bg-gray-50 border-y border-gray-100" id="past-events">
+        <div className="max-w-[1630px] mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="Past Events"
             title="More events, more ideas."
             copy="Explore our events calendar and find the right room for your next big conversation."
           />
-          <div className="event-grid">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mt-12">
             {upcoming.map((event) => (
               <EventCard event={event} key={event.id} />
             ))}
@@ -90,58 +94,65 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section" id="categories">
-        <div className="site-shell">
+      {/* Categories */}
+      <section className="py-20 lg:py-28" id="categories">
+        <div className="max-w-[1630px] mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="Categories"
             title="Designed around audience intent."
             copy="The public website separates discovery paths so mobile visitors, executives, founders, and sponsors can find the right event quickly."
           />
-          <div className="category-grid">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-6 mt-12">
             {categories.map((category, index) => (
-              <div className="category-tile" key={category}>
-                <Sparkles size={22} aria-hidden />
-                <strong>{category}</strong>
-                <span>{index + 2} programs</span>
+              <div className="group flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl hover:border-[#e31837] hover:shadow-lg transition-all duration-300 cursor-pointer" key={category}>
+                <Sparkles size={28} className="text-[#e31837] mb-4 group-hover:scale-110 transition-transform" aria-hidden />
+                <strong className="text-gray-900 text-lg font-bold">{category}</strong>
+                <span className="text-sm text-gray-500 mt-1">{index + 2} programs</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="section alt" id="about">
-        <div className="site-shell">
-          <SectionHeading
-            eyebrow="Why Attend"
-            title="Premium from first click to final check-in."
-            copy="The experience focuses on trust: sharp content hierarchy, clear event data, responsive booking, accessible controls, and enterprise-grade polish."
-          />
-          <div className="testimonial-grid">
+      {/* About / Why Attend */}
+      <section className="py-20 lg:py-28 bg-[#0a0a0a] text-white" id="about">
+        <div className="max-w-[1630px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mb-12">
+            <span className="text-[#e31837] font-bold tracking-widest uppercase text-sm mb-4 block">Why Attend</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-6">Premium from first click to final check-in.</h2>
+            <p className="text-lg text-gray-400">The experience focuses on trust: sharp content hierarchy, clear event data, responsive booking, accessible controls, and enterprise-grade polish.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
             {valueProps.map(({ Icon, title, copy }) => (
-              <article className="testimonial-card" key={title}>
-                <Icon size={28} aria-hidden />
-                <h3>{title}</h3>
-                <p>{copy}</p>
+              <article className="p-8 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-colors" key={title}>
+                <div className="w-14 h-14 bg-[#e31837]/20 text-[#e31837] rounded-xl flex items-center justify-center mb-6">
+                  <Icon size={28} aria-hidden />
+                </div>
+                <h3 className="text-2xl font-bold mb-3">{title}</h3>
+                <p className="text-gray-400 leading-relaxed">{copy}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="section" id="speakers">
-        <div className="site-shell">
+      {/* Speakers */}
+      <section className="py-20 lg:py-28" id="speakers">
+        <div className="max-w-[1630px] mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="Featured Speakers"
             title="Leaders attendees already trust."
             copy="Only render speaker sections when speaker data exists on an event detail page; the homepage highlights marquee speakers from the featured event."
           />
-          <div className="speaker-grid">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
             {(featured.speakers ?? []).map((speaker) => (
-              <article className="speaker-card" key={speaker.name}>
-                <Image src={speaker.image} alt={speaker.name} width={96} height={96} />
-                <h3>{speaker.name}</h3>
-                <p>
-                  {speaker.role}, {speaker.company}
+              <article className="flex flex-col items-center text-center group" key={speaker.name}>
+                <div className="relative w-32 h-32 mb-5 overflow-hidden rounded-full border-4 border-gray-100 group-hover:border-[#f39c12] transition-colors">
+                  <Image src={speaker.image} alt={speaker.name} fill className="object-cover" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">{speaker.name}</h3>
+                <p className="text-sm text-gray-600 mt-1 font-medium">
+                  {speaker.role}, <span className="text-[#e31837]">{speaker.company}</span>
                 </p>
               </article>
             ))}
@@ -149,129 +160,44 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section alt" id="partners">
-        <div className="site-shell">
+      {/* Sponsors */}
+      <section className="py-20 lg:py-28 bg-gray-50 border-y border-gray-200" id="partners">
+        <div className="max-w-[1630px] mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="Sponsors"
             title="Sponsors and Partners"
             copy="Our partners help create bigger conversations and stronger communities."
           />
-          <div className="sponsor-grid">
+          <div className="flex flex-wrap justify-center items-center gap-12 mt-16 opacity-60 hover:opacity-100 transition-opacity duration-500">
            {(featured.sponsors ?? []).map((sponsor) => (
-              <span key={sponsor.name}>{sponsor.name}</span>
+              <span key={sponsor.name} className="text-2xl font-extrabold text-gray-400 uppercase tracking-widest">{sponsor.name}</span>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="section">
-        <div className="site-shell">
-          <SectionHeading
-            eyebrow="Gallery"
-            title="A visual record of premium rooms."
-            copy="Optimized Next.js images keep the experience fast while making the platform feel media-rich and credible."
-          />
-          <div className="gallery-grid">
-            {(featured.galleryImages ?? []).map((image) => (
-              <Image key={image} src={image} alt="" width={900} height={620} loading="lazy" />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section alt">
-        <div className="site-shell">
-          <SectionHeading
-            eyebrow="Past Events"
-            title="Proof that the platform can carry a portfolio."
-            copy="Past events remain discoverable without competing with registration-focused upcoming events."
-          />
-          <div className="event-grid">
-            {past.map((event) => (
-              <EventCard event={event} key={event.id} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="site-shell">
-          <SectionHeading
-            eyebrow="Testimonials"
-            title="Designed for confidence."
-            copy="Enterprise users should feel the platform is trustworthy, fast, polished, and operationally mature."
-          />
-          <div className="testimonial-grid">
-            <article className="testimonial-card">
-              <p>"The registration flow felt premium and the event information was exactly where our team expected it."</p>
-              <strong>Corporate Delegate</strong>
-            </article>
-            <article className="testimonial-card">
-              <p>"Sponsor visibility, agenda clarity, and mobile performance made the event easy to promote."</p>
-              <strong>Brand Partner</strong>
-            </article>
-            <article className="testimonial-card">
-              <p>"A clean platform that can scale across multiple websites without feeling generic."</p>
-              <strong>Platform Admin</strong>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section className="section alt">
-        <div className="site-shell">
-          <SectionHeading
-            eyebrow="Latest Updates"
-            title="Event intelligence without clutter."
-            copy="Updates can later be driven from the API while the frontend keeps the same editorial component system."
-          />
-          <div className="testimonial-grid">
-            <article className="info-panel">
-              <Globe2 aria-hidden />
-              <h3>Global speaker batch announced</h3>
-              <p>New CXO and investor sessions added to the flagship summit agenda.</p>
-            </article>
-            <article className="info-panel">
-              <Building2 aria-hidden />
-              <h3>Venue partners expanded</h3>
-              <p>Premium venues across Mumbai, Bengaluru, Dubai, and Jaipur are being onboarded.</p>
-            </article>
-            <article className="info-panel">
-              <ArrowRight aria-hidden />
-              <h3>Sync-ready schema</h3>
-              <p>The event model is structured for future distribution to company websites.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section className="section" id="newsletter">
-        <div className="site-shell">
-          <Newsletter />
-        </div>
-      </section>
-
-      <section className="section alt" id="faq">
-        <div className="site-shell">
+      {/* FAQ */}
+      <section className="py-20 lg:py-28" id="faq">
+        <div className="max-w-[1630px] mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="FAQ"
             title="Clear answers before checkout."
             copy="Frequently asked questions reduce support load and increase booking confidence."
           />
-          <div className="faq-grid">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
             {[
               ["Can visitors book tickets online?", "Yes. The public flow is event, ticket selection, checkout, payment, success, and ticket download."],
               ["Can admins upload hero videos?", "Yes. Event detail supports hero video first, with image fallback when no video is available."],
               ["Will sections hide if empty?", "Yes. Detail pages conditionally render optional data such as agenda, media kit, speakers, and sponsors."]
             ].map(([question, answer]) => (
-              <article className="faq-card" key={question}>
-                <h3>{question}</h3>
-                <p>{answer}</p>
+              <article className="p-8 bg-gray-50 rounded-2xl border border-gray-100" key={question}>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{question}</h3>
+                <p className="text-gray-600 leading-relaxed">{answer}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
-    </>
+    </main>
   );
 }

@@ -80,10 +80,7 @@ export function Hero({
   events?: PlatformEvent[];
   detail?: boolean;
 }) {
-  // Agar slider ke liye 'events' array aaya hai toh wo use karo.
-  // Nahi toh detail page ka single 'event' use karo.
   const displayEvents = events?.length ? events : event ? [event] : [];
-
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Auto-slide logic
@@ -92,7 +89,7 @@ export function Hero({
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % displayEvents.length);
-    }, 3000); // 5 seconds timer
+    }, 5000); // 5 seconds timer
 
     return () => clearInterval(interval);
   }, [displayEvents.length]);
@@ -102,39 +99,22 @@ export function Hero({
   }
 
   return (
-    <section 
-      className={`hero-slider-section ${detail ? "detail-hero" : ""}`}
-      style={{ 
-        position: "relative", 
-        width: "100%", 
-        height: detail ? "40vh" : "60vh", 
-        minHeight: "500px",
-        overflow: "hidden", // Bahar nikalte hue slides ko chupane ke liye
-        backgroundColor: "#111"
-      }}
+    <section
+      className={`relative w-full overflow-hidden bg-[#111] ${
+        detail ? "h-[40vh] min-h-[400px]" : "h-[60vh] min-h-[650px]"
+      }`}
     >
-      {/* Sliding Track - Ye div horizontally slide karega */}
+      {/* Sliding Track */}
       <div
-        style={{
-          display: "flex",
-          width: "100%",
-          height: "100%",
-          transition: "transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
-          transform: `translateX(-${currentIndex * 100}%)`, // Yahan se horizontal slide ka jadoo ho raha hai
-        }}
+        className="flex w-full h-full transition-transform duration-[800ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {displayEvents.map((ev, index) => {
           const image = ev.image || FALLBACK_IMAGE;
 
           return (
-            <div
-              key={ev.id}
-              style={{
-                minWidth: "100%", // Har slide poori width legi
-                height: "100%",
-                position: "relative",
-              }}
-            >
+            <div key={ev.id} className="min-w-full h-full relative">
+              
               {/* Full Background Image */}
               <Image
                 src={image}
@@ -142,68 +122,32 @@ export function Hero({
                 fill
                 priority={index === 0}
                 sizes="100vw"
-                style={{ objectFit: "cover" }}
+                className="object-cover"
               />
 
-              {/* Dark Gradient Overlay: Left se dark hoga taaki text clear dikhe */}
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  background: "linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)",
-                  pointerEvents: "none",
-                }}
-              />
+              {/* Dark Gradient Overlay (Left se dark, right me transparent) */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent pointer-events-none" />
 
-              {/* Left Aligned Content Block */}
-              <div className="site-shell" style={{ height: "100%", position: "relative", zIndex: 2 }}>
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    maxWidth: "650px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "1.25rem",
-                    color: "#fff",
-                  }}
-                >
+              {/* Content Box Container */}
+              <div className="max-w-[1630px] mx-auto px-4 sm:px-6 lg:px-8 h-full relative z-10">
+                
+                {/* Left Aligned Content */}
+                <div className="absolute top-1/2 -translate-y-1/2 max-w-2xl flex flex-col gap-5 text-white mt-8">
+                  
                   {/* Small Event Label */}
-                  <span
-                    style={{
-                      backgroundColor: "var(--brand-color, #e11d48)",
-                      color: "white",
-                      padding: "0.25rem 0.75rem",
-                      borderRadius: "4px",
-                      fontSize: "0.75rem",
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.1em",
-                      width: "fit-content",
-                      boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
-                    }}
-                  >
+                  <span className="bg-[#e31837] text-white px-3 py-1 rounded text-xs font-bold uppercase tracking-widest w-fit shadow-lg">
                     {ev.type ?? "SME EVENT"}
                   </span>
 
-                  <h1 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", lineHeight: 1.1, margin: 0, color: "#fff", textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}>
+                  {/* Title */}
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] drop-shadow-md">
                     {ev.name}
                   </h1>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: "1.5rem",
-                      alignItems: "center",
-                      opacity: 0.9,
-                      fontWeight: 500,
-                      fontSize: "1.1rem"
-                    }}
-                  >
+                  {/* Metadata (Date, Time, Location) */}
+                  <div className="flex flex-wrap gap-6 items-center text-white/90 font-medium text-[17px]">
                     {ev.startDate && (
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <div className="flex items-center gap-2">
                         <Calendar size={18} />
                         <span>
                           {new Date(ev.startDate).toLocaleDateString("en-IN", {
@@ -216,37 +160,28 @@ export function Hero({
                     )}
 
                     {ev.startTime && (
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <div className="flex items-center gap-2">
                         <Clock size={18} />
                         <span>{ev.startTime}</span>
                       </div>
                     )}
 
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <div className="flex items-center gap-2">
                       <MapPin size={18} />
                       <span>{ev.location}</span>
                     </div>
                   </div>
 
-                  <p style={{ fontSize: "1.125rem", lineHeight: 1.6, opacity: 0.85, margin: 0, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                  {/* Overview (Line Clamp 2 se sirf 2 lines dikhengi) */}
+                  <p className="text-lg leading-relaxed text-white/85 line-clamp-2">
                     {ev.overview?.content ?? ev.overview?.heading ?? ""}
                   </p>
 
-                  <div style={{ marginTop: "1rem" }}>
+                  {/* CTA Button */}
+                  <div className="mt-2">
                     <Link
-                      className="btn btn-primary"
                       href={detail ? "#book" : `/events/${ev.id}`}
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        padding: "0.75rem 1.5rem",
-                        fontWeight: 600,
-                        backgroundColor: "#fff",
-                        color: "#000",
-                        border: "none",
-                        borderRadius: "4px"
-                      }}
+                      className="inline-flex items-center gap-2 px-6 py-3 font-semibold bg-white text-black rounded hover:bg-gray-200 transition-colors"
                     >
                       {detail ? "Book Tickets" : "Know More"} <ArrowRight size={18} />
                     </Link>
@@ -258,35 +193,19 @@ export function Hero({
         })}
       </div>
 
-      {/* Slider Navigation Dots (Only if multiple events) */}
+      {/* Slider Navigation Dots */}
       {displayEvents.length > 1 && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: "2rem",
-            left: "0",
-            right: "0",
-            display: "flex",
-            justifyContent: "center",
-            gap: "0.75rem",
-            zIndex: 10,
-          }}
-        >
+        <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-3 z-20">
           {displayEvents.map((_, index) => (
             <button
               key={`dot-${index}`}
               onClick={() => setCurrentIndex(index)}
               aria-label={`Go to slide ${index + 1}`}
-              style={{
-                width: "10px",
-                height: "10px",
-                borderRadius: "50%",
-                border: "none",
-                padding: 0,
-                cursor: "pointer",
-                backgroundColor: currentIndex === index ? "#fff" : "rgba(255,255,255,0.3)",
-                transition: "all 0.3s ease",
-              }}
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                currentIndex === index 
+                  ? "bg-white scale-125" 
+                  : "bg-white/40 hover:bg-white/70"
+              }`}
             />
           ))}
         </div>
