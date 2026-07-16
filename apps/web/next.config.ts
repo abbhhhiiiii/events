@@ -26,6 +26,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "media.smebusinessforum.com",
       },
+      
       {
         protocol: "http",
         hostname: "localhost",
