@@ -58,7 +58,7 @@ export function Header() {
       <div className="bg-[#0a0a0a] text-white/80 py-1 border-b border-white/10">
         <div className="max-w-[1630px] mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center text-xs md:text-sm font-medium">
           
-          {/* Left Social Icons */}
+          
           <div className="flex items-center gap-5">
             <Link href="#" className="hover:text-white transition-colors" aria-label="Instagram">
               <Instagram size={16} />
@@ -74,7 +74,7 @@ export function Header() {
             </Link>
           </div>
 
-          {/* Right Links & Accessibility */}
+        
           <div className="flex items-center gap-6">
             <Link href="#" className="hover:text-white transition-colors">Help</Link>
             <Link href="#" className="hover:text-white transition-colors">FAQs</Link>
@@ -92,7 +92,7 @@ export function Header() {
       {/* Main Navbar - isScrolled ki jagah forceWhite use kiya hai */}
       <div 
         className={`transition-all duration-500 ease-in-out ${
-          forceWhite ? "bg-white shadow-lg py-0" : "bg-transparent py-0"
+          forceWhite ? "bg-white shadow-lg py-2" : "bg-transparent py-0"
         }`}
       >
         <div className="max-w-[1630px] mx-auto flex justify-between items-stretch h-16 md:h-20 px-4 sm:px-6 lg:px-8">
@@ -103,9 +103,9 @@ export function Header() {
             className="flex items-center group" 
             aria-label="SME Events home"
           >
-            <div className="relative w-[70px] h-[45px] md:w-[90px] md:h-[55px]">
+            <div className="relative w-[100px] h-[55px] md:w-[130px] md:h-[80px] ml-0 md:-ml-2">
               <Image
-                src="/sme-event.png"
+                src="/Logos-SME-EVENTS.svg"
                 alt="SME Events Logo"
                 fill
                 className="object-contain transition-transform duration-300 ease-in-out group-hover:scale-105"

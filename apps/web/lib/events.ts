@@ -84,6 +84,7 @@ export const demoEvents: PlatformEvent[] = [
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api";
 
+
 async function apiFetch<T>(path: string, fallback: T): Promise<T> {
   try {
     const response = await fetch(`${apiBaseUrl}${path}`, {
@@ -121,11 +122,15 @@ export async function getUpcomingEvents() {
 }
 
 export async function getPastEvents() {
-  return demoEvents.map((event) => ({
-    ...event,
-    id: event.id + 1000, // Assigning a unique numeric ID for the past event dummy data
-    name: "Enterprise Leadership Retreat 2025",
-    status: "ARCHIVED" as const,
-    startDate: "2025-12-09T00:00:00.000Z"
-  }));
+  const events = await listEvents();
+  const now = new Date();
+  
+  // 1. Filter: Jo events aaj se pehle ke hain
+  // 2. Status: Sirf 'ARCHIVED' ya purane events
+  return events
+    .filter((event) => new Date(event.startDate) < now)
+    .map((event) => ({
+      ...event,
+      status: "ARCHIVED" as const, // Status ko explicitly archived set kar rahe hain
+    }));
 }

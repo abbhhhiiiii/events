@@ -63,23 +63,35 @@ export default async function HomePage() {
       <Hero events={allEvents} />
 
       {/* Upcoming Events */}
-      <section className="py-20" id="upcoming">
-        <div className="max-w-[1630px] mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            eyebrow="Upcoming Events"
-            title="Upcoming Events"
-            copy="Discover business summits, leadership forums, and conversations that matter."
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mt-12">
-            {allEvents.map((event) => (
-              <EventCard event={event} key={event.id} />
-            ))}
-          </div>
-        </div>
-      </section>
+  <section className="py-20" id="upcoming">
+  <div className="max-w-[1630px] mx-auto px-4 sm:px-6 lg:px-8">
+    <SectionHeading
+      eyebrow="Upcoming Events"
+      title="Upcoming Events"
+      copy="Discover business summits, leadership forums, and conversations that matter."
+    />
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mt-12">
+      {allEvents.map((event) => (
+        <EventCard event={event} key={event.id} />
+      ))}
+    </div>
+
+    {/* View More Button */}
+    <div className="flex justify-center mt-16">
+      <Link 
+        href="events/upcoming-events"
+        className="group flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-gray-600 hover:text-[#e31837] transition-all duration-300 border-b-2 border-transparent hover:border-[#e31837] pb-1"
+      >
+        View All Events
+        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+      </Link>
+    </div>
+  </div>
+</section>
 
       {/* Past Events */}
-      <section className="py-20 lg:py-28 bg-gray-50 border-y border-gray-100" id="past-events">
+      {/* <section className="py-20 lg:py-28 bg-gray-50 border-y border-gray-100" id="past-events">
         <div className="max-w-[1630px] mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="Past Events"
@@ -92,7 +104,7 @@ export default async function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Categories */}
       <section className="py-20 lg:py-28" id="categories">

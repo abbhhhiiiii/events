@@ -141,7 +141,7 @@ export default async function EventDetailPage({ params }: Props) {
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-10 flex flex-col lg:flex-row gap-6 xl:gap-4 items-start">
         
         {/* COLUMN 1: LEFT SIDEBAR (Desktop Navigation - Ek ke niche ek) */}
-        <aside className="hidden lg:flex flex-col sticky top-28 w-48 shrink-0 space-y-1 py-2">
+        <aside className="hidden lg:flex flex-col sticky top-28 w-48 shrink-0 space-y-1 py-2 bg-white shadow-sm border border-gray-100">
        
           {tabs.map((tab) => (
             <a
