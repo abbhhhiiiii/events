@@ -17,7 +17,11 @@ export function EventSectionEditor({ sections, onChange, tickets, onTicketsChang
   const set = <K extends keyof EventSections>(key: K, value: EventSections[K]) => onChange({ ...sections, [key]: value });
   return <>
     <Overview data={sections.overview} onChange={value => set("overview", value)} />
-    <Agenda data={sections.agenda ?? []} onChange={value => set("agenda", value)} />
+    <Agenda
+      data={sections.agenda ?? []}
+      onChange={value => set("agenda", value)}
+      availableSpeakers={sections.speakers ?? []}
+    />
     <Speakers data={sections.speakers ?? []} onChange={value => set("speakers", value)} />
     <Sponsors data={sections.sponsors ?? []} onChange={value => set("sponsors", value)} />
     <Venue data={sections.venue} onChange={value => set("venue", value)} />

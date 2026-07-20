@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-const jsonRecord = z.record(z.unknown()).optional().nullable();
+const jsonObject = z.record(z.unknown());
+const jsonRecord = jsonObject.optional().nullable();
 
 export const eventTicketSchema = z.object({
   id: z.string().optional(), name: z.string().min(1), price: z.coerce.number().int().min(0), description: z.string().default(""), quantity: z.coerce.number().int().min(0), sold: z.coerce.number().int().min(0).optional(), isFree: z.boolean().optional()
@@ -21,7 +22,9 @@ export const eventPayloadSchema = z.object({
   agenda: z.array(z.record(z.unknown())).optional().nullable(),
   book: jsonRecord,
   contactUs: jsonRecord,
-  info: z.array(z.string()).optional().nullable(),
+  // Supports legacy string lists as well as the rich-text editor's
+  // `{ content: "<p>...</p>" }` structure.
+  info: z.union([z.array(z.string()), jsonObject]).optional().nullable(),
   mediaKit: jsonRecord,
   overview: jsonRecord,
   speakers: z.array(z.record(z.unknown())).optional().nullable(),

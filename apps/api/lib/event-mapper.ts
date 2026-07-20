@@ -58,7 +58,8 @@ export function mapEvent(event: DbEvent) {
     agenda: array(event.agenda),
     book: object(event.book),
     contactUs: object(event.contactUs),
-    info: array<string>(event.info),
+    // Preserve rich-text Info content while still returning legacy string lists.
+    info: Array.isArray(event.info) ? array<string>(event.info) : object(event.info),
     mediaKit: object(event.mediaKit),
     overview: object(event.overview),
     speakers: array(event.speakers),
