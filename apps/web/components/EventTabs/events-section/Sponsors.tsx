@@ -4,10 +4,9 @@ import { SectionHeading } from "../../section-heading"; // Apna path verify kar 
 export function SponsorsSection({ sponsors }: { sponsors: any[] }) {
   if (!sponsors?.length) return null;
 
-
+  // Check if data is nested
   const isNested = sponsors.some((s) => Array.isArray(s.sponsors));
   
- 
   const sectionsToRender = isNested 
     ? sponsors 
     : [{ sectionTitle: "", sponsors: sponsors }];
@@ -20,63 +19,66 @@ export function SponsorsSection({ sponsors }: { sponsors: any[] }) {
         copy="Meet the amazing organizations making this event possible."
       />
 
-      <div className="mt-12 space-y-12">
+      <div className="mt-12 space-y-16">
         {sectionsToRender.map((section, sIdx) => {
           // Agar section me koi sponsor nahi hai, toh usko skip karo
           if (!section.sponsors?.length) return null;
 
           return (
-            <div key={sIdx}>
-              {/* SECTION TITLE (e.g., Platinum Sponsors) */}
+            <div key={sIdx} className="space-y-2">
+              
+              {/* Category Heading with Horizontal Line */}
               {section.sectionTitle && (
-                <div className="text-center mb-8">
-                  <h3 className="text-lg md:text-xl font-bold text-gray-800 uppercase tracking-wider">
+                <div className="flex items-center gap-4 mb-6">
+                  <h3 className="text-gray-700 text-sm sm:text-base whitespace-nowrap">
                     {section.sectionTitle}
                   </h3>
-                  <div className="w-12 h-1 bg-[#008DD2] mx-auto mt-3 rounded-full" />
+                  {/* Ye div baaki bachi hui jagah me line bana dega */}
+                  <div className="h-px bg-gray-200 flex-1"></div>
                 </div>
               )}
 
-              {/* SPONSORS GRID */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {/* Sponsors Grid (Clean Layout with borders & hover scale) */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 items-center">
                 {section.sponsors.map((sponsor: any, idx: number) => {
                   
                   // Sponsor Card UI
                   const sponsorCardContent = (
-                    <div className="h-24 sm:h-32 flex flex-col items-center justify-center p-4 border border-gray-200 rounded-xl hover:border-[#008DD2] hover:shadow-md transition-all bg-slate-50/50 group relative overflow-hidden">
+                    <div className="flex flex-col items-center justify-center h-24 sm:h-32 px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-slate-300 hover:scale-105 transition-all duration-300 cursor-pointer group">
                       {sponsor.logo ? (
-                        // IMAGE DISPLAY
                         <div className="relative w-full h-full flex items-center justify-center">
                           <Image
                             src={sponsor.logo}
                             alt={sponsor.name || "Sponsor Logo"}
                             fill
-                            className="object-contain filter grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300 p-2"
+                            className="object-contain mix-blend-multiply p-2"
                           />
                         </div>
                       ) : (
-                        // FALLBACK TEXT DISPLAY (If no image)
-                        <span className="font-bold text-gray-700 text-center text-sm md:text-base group-hover:text-[#008DD2] transition-colors">
+                        <h4 className="font-bold text-sm sm:text-base text-gray-800 text-center">
                           {sponsor.name || "Partner"}
-                        </span>
+                        </h4>
                       )}
                     </div>
                   );
 
+                  // Website URL check (handles both possible API properties)
+                  const websiteUrl = sponsor.website || sponsor.websiteUrl;
+
                   // Agar website link hai, toh a-tag se wrap karo, warna normal div
-                  return sponsor.website ? (
+                  return websiteUrl ? (
                     <a
                       key={idx}
-                      href={sponsor.website.startsWith('http') ? sponsor.website : `https://${sponsor.website}`}
+                      href={websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block"
+                      className="block w-full"
                       title={sponsor.name}
                     >
                       {sponsorCardContent}
                     </a>
                   ) : (
-                    <div key={idx} title={sponsor.name}>
+                    <div key={idx} className="w-full" title={sponsor.name}>
                       {sponsorCardContent}
                     </div>
                   );

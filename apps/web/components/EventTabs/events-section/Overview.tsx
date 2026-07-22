@@ -1,154 +1,225 @@
+"use client";
+
+import React, { useState, useRef } from "react";
 import Image from "next/image";
-import { PlayCircle, Image as ImageIcon, Info } from "lucide-react";
-import { SectionHeading } from "../../section-heading"; // Path verify kar lena
+import { Volume2, VolumeX, ArrowUpRight } from "lucide-react";
+import { normalizeRichTextWrapping } from "../utils";
 
-export function OverviewSection({ overview, eventName }: { overview: any; eventName: string }) {
-  if (!overview) return null;
+// Helper: YouTube URL to Embed URL converter
+const getYouTubeEmbedUrl = (url: string) => {
+  if (!url) return "";
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/);
+  
+  if (match && match[1]) {
+    const videoId = match[1];
+    // Exactly like gallery - no autoplay to prevent blocking
+    return `https://www.youtube.com/embed/${videoId}?controls=1&modestbranding=1&rel=0`;
+  }
+  return url;
+};
 
-  const mainDescription = overview.mainDescription || overview.content || "";
-  const highlights = overview.highlightBlocks || [];
-  const features = overview.featureBlocks || [];
-  const sponsoredVideos = overview.sponsoredVideos || [];
-  const gallery = overview.gallery || [];
-  const videoGallery = overview.videoGallery || [];
+// Sub-Component: Har video ko individually handle karne ke liye
+const SponsoredVideoCard = ({ item }: { item: any }) => {
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const isString = typeof item === 'string';
+  
+  // Extract URL safely
+  const url = isString ? item : (item?.videoUrl || item?.url || item?.video || item?.link || "");
+  const companyName = isString ? "" : (item?.companyName || "");
+  let websiteLink = isString ? "" : (item?.websiteLink || "");
+
+  if (websiteLink && !/^https?:\/\//i.test(websiteLink)) {
+    websiteLink = `https://${websiteLink}`;
+  }
+
+  const isYouTube = url?.includes("youtube.com") || url?.includes("youtu.be");
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  if (!url) return null;
 
   return (
-    <div id="overview" className="scroll-mt-32 space-y-8">
-      
-
-      <section className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-100 overflow-hidden relative">
-        <SectionHeading
-          eyebrow="Overview"
-          title={overview.heading ?? eventName}
-          copy="Everything you need to know about this event."
-        />
+    <div className="flex flex-col items-center w-full group relative">
+      <div className="relative w-full h-56 md:h-64 rounded-xl overflow-hidden shadow-sm bg-black border border-slate-200">
         
-        {mainDescription && (
-          <div className="mt-8">
-            <div 
-              className="prose prose-gray sm:prose-base max-w-none text-gray-600 leading-relaxed text-justify [&_p]:mb-4 [&_strong]:font-bold [&_ul]:list-disc [&_ul]:pl-5 [&_a]:text-[#008DD2] hover:[&_a]:underline"
-              dangerouslySetInnerHTML={{ __html: mainDescription.replace(/&nbsp;/g, ' ') }}
-            />
+        {/* Uploaded Local Videos ke liye hi Mute button aayega */}
+        {!isYouTube && (
+          <button
+            onClick={toggleMute}
+            className="absolute top-3 right-3 z-30 bg-black/60 backdrop-blur-sm text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/80 flex items-center justify-center cursor-pointer"
+            title={isMuted ? "Unmute" : "Mute"}
+          >
+            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          </button>
+        )}
+
+        {/* Company Name Overlay */}
+        {companyName && (
+          <div className="absolute top-3 left-3 z-30 pointer-events-auto"> 
+            {websiteLink ? (
+              <a 
+                href={websiteLink} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-black/60 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-black/80 transition-colors no-underline shadow-lg"
+              >
+                {companyName}
+                <ArrowUpRight size={16} />
+              </a>
+            ) : (
+              <span className="bg-black/60 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-semibold inline-block shadow-lg">
+                {companyName}
+              </span>
+            )}
           </div>
         )}
-      </section>
 
+        {/* DYNAMIC VIDEO RENDERER */}
+        {isYouTube ? (
+          // EXACTLY same as Gallery
+          <iframe
+            src={getYouTubeEmbedUrl(url)}
+            className="w-full h-full border-0"
+            allow="encrypted-media; fullscreen; picture-in-picture"
+            allowFullScreen
+            title="Sponsored Video"
+          />
+        ) : (
+          // EXACTLY same for Local Uploaded Videos
+          <video
+            ref={videoRef}
+            src={url}
+            autoPlay
+            loop
+            muted 
+            playsInline
+            className="w-full h-full object-cover"
+          />
+        )}
+      </div>
+    </div>
+  );
+};
 
-      {highlights.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {highlights.map((block: any, idx: number) => (
-            <section key={idx} className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden group">
-              <div className="absolute top-0 left-0 w-1 h-full bg-[#008DD2] opacity-0 group-hover:opacity-100 transition-opacity" />
-              {block.title && (
-                <h3 className="text-xl font-bold text-gray-900 mb-4 border-b border-gray-100 pb-3 flex items-center gap-2">
-                  <Info className="text-[#008DD2]" size={20} />
-                  {block.title}
-                </h3>
-              )}
-              <div 
-                className="prose prose-sm sm:prose-base max-w-none text-gray-600 text-justify leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: block.content || "" }}
-              />
-            </section>
-          ))}
-        </div>
-      )}
+export default function OverviewTab({ overview }: { overview: any }) {
+  const hasGallery = overview.gallery?.length > 0 || overview.videoGallery?.length > 0;
 
-
-      {features.length > 0 && (
-        <div className="space-y-6">
-          {features.map((block: any, idx: number) => (
-            <section key={idx} className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-8 lg:gap-10 items-start">
-              {block.image && (
-                <div className="w-full md:w-1/3 lg:w-[40%] shrink-0 relative aspect-[4/3] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
-                  <Image src={block.image} alt={`Feature image ${idx + 1}`} fill className="object-cover hover:scale-105 transition-transform duration-500" />
-                </div>
-              )}
-              <div 
-                className="flex-1 w-full prose prose-gray max-w-none text-gray-600 leading-relaxed text-justify mt-2 sm:mt-0"
-                dangerouslySetInnerHTML={{ __html: block.content || "" }}
-              />
-            </section>
-          ))}
-        </div>
-      )}
-
-
-      {sponsoredVideos.length > 0 && (
-        <section className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center gap-2 mb-8">
-            <PlayCircle className="text-[#008DD2]" size={24} />
-            <h3 className="text-xl md:text-2xl font-bold text-gray-900">Featured Videos</h3>
+  return (
+    <div className="space-y-12">
+      {/* Main Description */}
+      {overview.mainDescription && (
+        <div className="mt-8">
+            <div 
+              className="prose prose-gray sm:prose-base max-w-none text-gray-600 leading-relaxed text-justify [&_p]:mb-4 [&_strong]:font-bold [&_ul]:list-disc [&_ul]:pl-5 [&_a]:text-[#008DD2] hover:[&_a]:underline"
+              dangerouslySetInnerHTML={{ __html: overview.mainDescription.replace(/&nbsp;/g, ' ') }}
+            />
           </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {sponsoredVideos.map((video: any, idx: number) => {
-              const url = typeof video === 'string' ? video : video.videoUrl;
-              const company = typeof video === 'string' ? '' : video.companyName;
-              const link = typeof video === 'string' ? '' : video.websiteLink;
-              
-              return (
-                <div key={idx} className="flex flex-col gap-4 group">
-                  <div className="relative aspect-video rounded-xl overflow-hidden bg-black border border-gray-200 shadow-sm">
-                    <video src={url} controls className="w-full h-full object-cover" preload="metadata" />
-                  </div>
-                  
-                  {(company || link) && (
-                    <div className="px-1">
-                      {company && <h4 className="font-bold text-gray-900 text-sm md:text-base">{company}</h4>}
-                      {link && (
-                        <a 
-                          href={link.startsWith('http') ? link : `https://${link}`} 
-                          target="_blank" 
-                          rel="noreferrer" 
-                          className="inline-block mt-1 text-xs md:text-sm font-medium text-[#008DD2] hover:text-blue-700 hover:underline truncate w-full"
-                        >
-                          {link}
-                        </a>
-                      )}
-                    </div>
+      )}
+
+      {/* Highlight Blocks */}
+      {overview.highlightBlocks?.length > 0 && (
+        <div className="space-y-6">
+          {overview.highlightBlocks.map(
+            (item: any, index: number) =>
+              (item.title || item.content) && (
+                <div key={index} className="bg-blue-50 border-l-4 border-[#008DD2] p-6 rounded-r-lg">
+                  {item.title && <h3 className="font-bold text-[#0b1c2e] text-lg mb-4">{item.title}</h3>}
+                  {item.content && (
+                    <div
+                      className="event-rich-text space-y-2 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-2"
+                      dangerouslySetInnerHTML={{
+                        __html: normalizeRichTextWrapping(item.content),
+                      }}
+                    />
                   )}
                 </div>
-              );
-            })}
-          </div>
-        </section>
+              )
+          )}
+        </div>
       )}
 
-      {(gallery.length > 0 || videoGallery.length > 0) && (
-        <section className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center gap-2 mb-8">
-            <ImageIcon className="text-[#008DD2]" size={24} />
-            <h3 className="text-xl md:text-2xl font-bold text-gray-900">Event Gallery</h3>
+      {/* Content Blocks */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {overview.featureBlocks?.map((block: any, index: number) => (
+          <div key={index} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition">
+            {block.image && (
+              <div className="relative w-full h-64">
+                <Image src={block.image} alt={`Feature ${index}`} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
+              </div>
+            )}
+            {block.content && (
+              <div className="p-6">
+                <div
+                  className="event-rich-text space-y-2 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-2 [&_p]:mb-2"
+                  dangerouslySetInnerHTML={{
+                    __html: normalizeRichTextWrapping(block.content),
+                  }}
+                />
+              </div>
+            )}
           </div>
-          
-          <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-6 snap-x scrollbar-hide -mx-2 px-2">
+        ))}
+      </div>
+
+      {/* Sponsored Videos Section */}
+      {overview.sponsoredVideos?.length > 0 && (
+        <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+          <h3 className="font-bold text-[#0b1c2e] text-xl mb-2">
+            Sponsored Videos
+          </h3>
+          {/* Grid updated to show 3 videos (grid-cols-3) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {/* Slice changed to 3 */}
+            {overview.sponsoredVideos.slice(0, 3).map((item: any, index: number) => (
+              <SponsoredVideoCard key={index} item={item} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Scrolling Gallery */}
+      {hasGallery && (
+        <div className="bg-blue-50 border-l-4 border-[#008DD2] p-6 rounded-r-xl shadow-sm">
+          <h3 className="font-bold text-[#0b1c2e] text-lg mb-5">Past Event Gallery</h3>
+          <div className="flex overflow-x-auto gap-5 pb-3 snap-x snap-mandatory hide-scrollbar">
             
             {/* Images */}
-            {gallery.map((img: string, idx: number) => (
-              <div key={`img-${idx}`} className="shrink-0 w-[260px] h-[180px] sm:w-[320px] sm:h-[220px] relative rounded-xl overflow-hidden border border-gray-200 snap-center group shadow-sm">
-                <Image 
-                  src={img} 
-                  alt={`Gallery ${idx + 1}`} 
-                  fill 
-                  className="object-cover group-hover:scale-110 transition-transform duration-500" 
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            {overview.gallery?.map((url: string, index: number) => (
+              <div key={`img-${index}`} className="relative w-60 h-40 shrink-0 snap-center overflow-hidden rounded-xl bg-white border border-slate-200 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                <Image src={url} alt={`Gallery ${index + 1}`} fill sizes="240px" className="object-cover transition-transform duration-500 hover:scale-110" />
               </div>
             ))}
 
             {/* Videos */}
-            {videoGallery.map((vid: string, idx: number) => (
-              <div key={`vid-${idx}`} className="shrink-0 w-[260px] h-[180px] sm:w-[320px] sm:h-[220px] relative rounded-xl overflow-hidden border border-gray-200 snap-center bg-black shadow-sm group">
-                <video src={vid} controls className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" preload="metadata" />
-              </div>
-            ))}
+            {overview.videoGallery?.map((url: string, index: number) => {
+              const isYouTube = url?.includes("youtube.com") || url?.includes("youtu.be");
 
+              return (
+                <div key={`vid-${index}`} className="relative w-60 h-40 shrink-0 snap-center overflow-hidden rounded-xl bg-black border border-slate-200 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                  {isYouTube ? (
+                    <iframe
+                      src={getYouTubeEmbedUrl(url)}
+                      className="w-full h-full border-0"
+                      allow="encrypted-media; fullscreen; picture-in-picture"
+                      allowFullScreen
+                      title="Gallery Video"
+                    />
+                  ) : (
+                    <video src={url} controls className="w-full h-full object-cover" />
+                  )}
+                </div>
+              )
+            })}
           </div>
-        </section>
+        </div>
       )}
-
     </div>
   );
 }

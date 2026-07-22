@@ -61,7 +61,7 @@ export function VenueSection({
                 >
                   <Navigation size={16} />
                   Get Directions
-                </a>
+                </a>           
               )}
             </div>
           )}

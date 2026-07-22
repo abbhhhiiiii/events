@@ -4,11 +4,6 @@ import { fail, ok } from "../../../../lib/http";
 
 export const dynamic = "force-dynamic";
 
-/**
- * Razorpay's server-to-server confirmation. This covers the case where a
- * customer completes payment but closes the checkout before the browser can
- * call `/events/verify`.
- */
 export async function POST(request: Request) {
   try {
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET;

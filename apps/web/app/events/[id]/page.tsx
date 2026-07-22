@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, Calendar, Clock, MapPin, Ticket } from "lucide-react";
-import { getEventById } from "../../../lib/events"; 
+import { Calendar, Clock, MapPin } from "lucide-react";
+import { getEventById } from "../../../lib/events";
 
-import { OverviewSection } from "../../../components/EventTabs/events-section/Overview";
+import OverviewSection from "../../../components/EventTabs/events-section/Overview";
 import { MediaKitSection } from "../../../components/EventTabs/events-section/MediaKit";
-import { AgendaSection } from "../../../components/EventTabs/events-section/Agenda";
+import AgendaSection from "../../../components/EventTabs/events-section/Agenda";
 import { SpeakersSection } from "../../../components/EventTabs/events-section/Speakers";
 import { SponsorsSection } from "../../../components/EventTabs/events-section/Sponsors";
 import { VenueSection } from "../../../components/EventTabs/events-section/Venue";
@@ -21,18 +21,14 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
-// 1. DYNAMIC METADATA GENERATION
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const event = await getEventById(Number(id));
 
   if (!event) {
-    return {
-      title: "Event Not Found",
-    };
+    return { title: "Event Not Found" };
   }
 
-  // Type safe fallback for new overview structure
   const overviewData = event.overview as any;
 
   return {
@@ -53,9 +49,8 @@ export default async function EventDetailPage({ params }: Props) {
     notFound();
   }
 
-  // 2. TAB VISIBILITY LOGIC (Added "Tickets" tab at the top)
+  // Tickets tab removed from here — ab sidebar me hai
   const tabs = [
-    { label: "Tickets", id: "tickets", exists: true }, // 👇 Tickets Tab
     { label: "Overview", id: "overview", exists: event.overview },
     { label: "Media Kit", id: "media-kit", exists: event.mediaKit },
     { label: "Agenda", id: "agenda", exists: event.agenda?.length },
@@ -72,10 +67,8 @@ export default async function EventDetailPage({ params }: Props) {
     { label: "Contact Us", id: "contact", exists: event.contactUs },
   ].filter((tab) => Boolean(tab.exists));
 
-  // Type safe fallback for new overview structure
   const overviewData = event.overview as any;
 
-  // 3. STRUCTURED DATA (SEO ke liye)
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Event",
@@ -98,29 +91,28 @@ export default async function EventDetailPage({ params }: Props) {
 
   return (
     <div className="bg-[#f8f9fa] min-h-screen pb-20">
-      {/* JSON-LD Script For SEO */}
-      <script 
-        type="application/ld+json" 
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} 
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      
+
       {/* HERO SECTION */}
       <div className="relative w-full h-[300px] md:h-[400px] bg-[#0b1c2e] overflow-hidden mt-20 md:mt-28">
         {event.image ? (
           <>
-            <Image 
-              src={event.image} 
-              alt={event.name} 
-              fill 
-              className="object-cover opacity-50" 
-              priority 
+            <Image
+              src={event.image}
+              alt={event.name}
+              fill
+              className="object-cover opacity-50"
+              priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0b1c2e] to-transparent opacity-80" />
           </>
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-blue-900 to-[#0b1c2e]" />
         )}
-        
+
         <div className="absolute bottom-8 left-4 md:left-8 lg:left-12 z-10 max-w-4xl">
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-3">
             {event.name}
@@ -144,9 +136,9 @@ export default async function EventDetailPage({ params }: Props) {
       <div className="lg:hidden sticky top-[60px] md:top-[80px] z-40 bg-white border-b border-gray-200 shadow-sm overflow-x-auto scrollbar-hide">
         <div className="flex px-4 min-w-max">
           {tabs.map((tab) => (
-            <Link 
-              key={tab.id} 
-              href={`#${tab.id}`} 
+            <Link
+              key={tab.id}
+              href={`#${tab.id}`}
               className="px-4 py-3.5 text-sm font-medium text-gray-600 hover:text-[#008DD2] whitespace-nowrap border-b-2 border-transparent hover:border-[#008DD2] transition-colors"
             >
               {tab.label}
@@ -157,14 +149,14 @@ export default async function EventDetailPage({ params }: Props) {
 
       {/* MAIN LAYOUT GRID */}
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-10 flex flex-col lg:flex-row gap-6 xl:gap-8 items-start">
-        
+
         {/* COLUMN 1: LEFT SIDEBAR */}
         <aside className="hidden lg:block sticky top-32 w-56 xl:w-64 shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <nav className="flex flex-col py-2">
             {tabs.map((tab) => (
-              <Link 
-                key={tab.id} 
-                href={`#${tab.id}`} 
+              <Link
+                key={tab.id}
+                href={`#${tab.id}`}
                 className="px-5 py-3 text-sm font-medium text-gray-600 hover:text-[#008DD2] hover:bg-blue-50/50 border-l-2 border-transparent hover:border-[#008DD2] transition-colors"
               >
                 {tab.label}
@@ -173,21 +165,13 @@ export default async function EventDetailPage({ params }: Props) {
           </nav>
         </aside>
 
-        {/* COLUMN 2: CENTER (All dynamic event sections) */}
+        {/* COLUMN 2: CENTER (Tickets section removed from here) */}
         <div className="flex-1 w-full min-w-0 space-y-12 md:space-y-16">
-          
-          {/* 👇 NEW TICKETS SECTION INJECTED HERE 👇 */}
-          <div id="tickets" className="scroll-mt-32">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Ticket className="text-[#008DD2]" /> Select Tickets
-            </h2>
-            <EventBookingSection event={event} />
-          </div>
 
           <div id="overview" className="scroll-mt-32">
-            <OverviewSection overview={event.overview} eventName={event.name} />
+            <OverviewSection overview={event.overview} />
           </div>
-          
+
           <div id="media-kit" className="scroll-mt-32">
             <MediaKitSection mediaKit={event.mediaKit} />
           </div>
@@ -217,10 +201,10 @@ export default async function EventDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* COLUMN 3: RIGHT SIDEBAR (Updated Booking Card) */}
-        <aside 
-          className="w-full lg:w-[320px] xl:w-[350px] shrink-0 sticky top-32 bg-white p-6 rounded-xl shadow-sm border border-gray-200" 
-          id="book" 
+        {/* COLUMN 3: RIGHT SIDEBAR — Tickets ab yahan hai */}
+        <aside
+          className="w-full lg:w-[320px] xl:w-[350px] shrink-0 sticky top-32 bg-white p-6 rounded-xl shadow-sm border border-gray-200"
+          id="book"
           aria-label="Book event"
         >
           <div className="space-y-6">
@@ -252,16 +236,7 @@ export default async function EventDetailPage({ params }: Props) {
             </div>
 
             <div className="pt-5 border-t border-gray-100">
-              {/* 👇 SCROLL TO TICKETS BUTTON (Old hardcoded pricing removed) 👇 */}
-              <a 
-                href="#tickets"
-                className="w-full bg-[#008DD2] hover:bg-[#0074b0] text-white font-bold py-3.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm"
-              >
-                Select Tickets <ArrowRight size={18} />
-              </a>
-              <p className="text-xs text-center text-gray-400 mt-3">
-                Secure your spot early. Seats are limited.
-              </p>
+              <EventBookingSection event={event} />
             </div>
           </div>
         </aside>
