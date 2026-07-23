@@ -12,6 +12,7 @@
   "dependencies": {
     "@events/db": "*",
     "@events/types": "*",
+    "@events/notifications": "*",
     "cloudinary": "^2.10.0",
     "next": "^15.1.0",
     "react": "^19.0.0",

@@ -11,7 +11,6 @@ export function VenueSection({
   location: string; 
   galleryImages: string[] 
 }) {
-  // Agar venue, location aur images teeno nahi hain, toh section hide kar do
   if (!venue && !location && !(galleryImages?.length)) return null;
 
   // Safe variables fallback ke sath

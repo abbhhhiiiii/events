@@ -2,31 +2,25 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@events/db";
 import { paymentVerificationSchema } from "../../../../lib/event-schema";
-import { fail, ok } from "../../../../lib/http";
+import { fail, getCorsHeaders, ok } from "../../../../lib/http";
+import { safelyNotifyEventBooking } from "../../../../lib/event-booking-notifications";
 
 export const dynamic = "force-dynamic";
 
 // --- CORS HEADERS FIX (Same as book route) ---
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "http://localhost:3000",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Access-Control-Allow-Credentials": "true",
-};
 
-// Helper: Response me headers add karne ke liye
-function withCors(response: Response) {
-  Object.entries(corsHeaders).forEach(([key, value]) => {
+function withCors(response: Response, request: Request) {
+  Object.entries(getCorsHeaders(request)).forEach(([key, value]) => {
     response.headers.set(key, value);
   });
   return response;
 }
 
 // 1. OPTIONS METHOD EXPORT (CORS Preflight Fix)
-export async function OPTIONS() {
+export async function OPTIONS(request: Request) {
   return new NextResponse(null, {
     status: 204,
-    headers: corsHeaders,
+    headers: getCorsHeaders(request),
   });
 }
 
@@ -36,7 +30,7 @@ export async function POST(request: Request) {
     const payload = paymentVerificationSchema.parse(await request.json());
 
     const secret = process.env.RAZORPAY_KEY_SECRET;
-    if (!secret) return withCors(fail(new Error("RAZORPAY_NOT_CONFIGURED"), 503));
+    if (!secret) return withCors(fail(new Error("RAZORPAY_NOT_CONFIGURED"), 503, request), request);
 
     // Razorpay Signature Verification
     const expected = createHmac("sha256", secret)
@@ -50,9 +44,10 @@ export async function POST(request: Request) {
       expectedBuffer.length === signatureBuffer.length &&
       timingSafeEqual(expectedBuffer, signatureBuffer);
 
-    if (!valid) return withCors(fail(new Error("INVALID_PAYMENT_SIGNATURE"), 400));
+    if (!valid) return withCors(fail(new Error("INVALID_PAYMENT_SIGNATURE"), 400, request), request);
 
     // Update Database Transaction
+    let shouldNotify = false;
     const booking = await prisma.$transaction(async (tx) => {
       const booking = await tx.eventBooking.findUnique({
         where: { id: payload.bookingId },
@@ -86,6 +81,7 @@ export async function POST(request: Request) {
 
       const finalStatus = needsApproval ? "PENDING_APPROVAL" : "PAID";
 
+      shouldNotify = true;
       return tx.eventBooking.update({
         where: { id: booking.id },
         data: { status: finalStatus, paymentId: payload.razorpayPaymentId },
@@ -94,8 +90,15 @@ export async function POST(request: Request) {
 
     const requiresApproval = booking.status === "PENDING_APPROVAL";
 
-    return withCors(ok({ verified: true, requiresApproval, booking }));
+    if (shouldNotify) {
+      await safelyNotifyEventBooking(
+        booking.id,
+        requiresApproval ? "PENDING" : "CONFIRMED",
+      );
+    }
+
+    return withCors(ok({ verified: true, requiresApproval, booking }, 200, request), request);
   } catch (error) {
-    return withCors(fail(error));
+    return withCors(fail(error, 500, request), request);
   }
 }

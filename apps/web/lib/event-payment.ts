@@ -17,13 +17,15 @@ declare global {
   }
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const RAZORPAY_CHECKOUT_URL = process.env.NEXT_PUBLIC_RAZORPAY_CHECKOUT_URL;
 
 function loadRazorpay() {
   return new Promise<boolean>((resolve) => {
     if (window.Razorpay) return resolve(true);
+    if (!RAZORPAY_CHECKOUT_URL) return resolve(false);
     const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.src = RAZORPAY_CHECKOUT_URL;
     script.onload = () => resolve(true);
     script.onerror = () => resolve(false);
     document.body.appendChild(script);
@@ -31,6 +33,7 @@ function loadRazorpay() {
 }
 
 export async function bookEvent(details: CheckoutDetails, eventName: string) {
+  if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL is not configured");
   const orderResponse = await fetch(`${API_URL}/events/book`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -54,7 +57,7 @@ export async function bookEvent(details: CheckoutDetails, eventName: string) {
       key: order.keyId,
       amount: order.amount,
       currency: order.currency || "INR",
-      name: "StayAtlas Events",
+      name: "SME Events",
       description: eventName,
       order_id: order.orderId,
       prefill: {

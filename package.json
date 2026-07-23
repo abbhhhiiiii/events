@@ -31,6 +31,7 @@
     "npm": ">=10.0.0"
   },
   "dependencies": {
-    "@sme/media-sdk": "github:smechamber/sme-media-sdk"
+    "@sme/media-sdk": "github:smechamber/sme-media-sdk",
+    "nodemailer": "^9.0.3"
   }
 }

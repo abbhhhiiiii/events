@@ -1,6 +1,11 @@
 import type { EventBooking, EventSections, TicketTier } from "@events/types";
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api";
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+function requiredApiBaseUrl() {
+  if (!apiBaseUrl) throw new Error("NEXT_PUBLIC_API_URL is not configured");
+  return apiBaseUrl;
+}
 
 type ApiResponse<T> = {
   data: T;
@@ -9,7 +14,7 @@ type ApiResponse<T> = {
 
 export async function apiGet<T>(path: string, fallback: T): Promise<T> {
   try {
-    const response = await fetch(`${apiBaseUrl}${path}`, { cache: "no-store" });
+    const response = await fetch(`${requiredApiBaseUrl()}${path}`, { cache: "no-store" });
     if (!response.ok) return fallback;
     const json = (await response.json()) as ApiResponse<T>;
     return json.data ?? fallback;
@@ -60,7 +65,7 @@ export type AdminEvent = {
 export type EventFormPayload = Omit<AdminEvent, "id">;
 
 export async function saveEvent(payload: EventFormPayload, id?: string) {
-  const response = await fetch(`${apiBaseUrl}/events${id ? `/${id}` : ""}`, {
+  const response = await fetch(`${requiredApiBaseUrl()}/events${id ? `/${id}` : ""}`, {
     method: id ? "PUT" : "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)

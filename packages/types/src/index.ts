@@ -132,6 +132,7 @@ export type EventBooking = {
   paymentId?: string;
   paymentAmountPaise?: number;
   registrationData?: Record<string, unknown>;
+  rejectionReason?: string;
 
   status:
     | "PENDING"

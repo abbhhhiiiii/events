@@ -3,7 +3,7 @@ import { fail, ok } from "../../../../lib/http";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const bookings = await prisma.eventBooking.findMany({
       include: {
@@ -13,8 +13,8 @@ export async function GET() {
       orderBy: { createdAt: "desc" }
     });
 
-    return ok(bookings);
+    return ok(bookings, 200, request);
   } catch (error) {
-    return fail(error);
+    return fail(error, 500, request);
   }
 }

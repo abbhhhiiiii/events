@@ -18,7 +18,7 @@ function response(body: object, status = 200) {
     status,
     headers: {
       "Access-Control-Allow-Origin":
-        process.env.NEXT_PUBLIC_ADMIN_URL ?? "http://localhost:3001",
+        process.env.NEXT_PUBLIC_ADMIN_URL ?? "null",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     },

@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { getEventById } from "../../../../lib/events";
 import EventRegistrationForm from "../../../../components/EventTabs/events-section/EventRegistrationForm";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -12,6 +12,7 @@ type Props = {
 };
 
 export default async function EventRegisterPage({ params, searchParams }: Props) {
+  if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL is not configured");
   const { id } = await params;
   const { ticketId } = await searchParams;
 

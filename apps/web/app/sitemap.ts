@@ -2,7 +2,8 @@ import type { MetadataRoute } from "next";
 import { demoEvents } from "../lib/events";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://events.company.com";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!baseUrl) throw new Error("NEXT_PUBLIC_SITE_URL is not configured");
 
   return [
     {

@@ -44,9 +44,8 @@ export function MediaUpload({
           const body = new FormData();
           body.append("file", file);
 
-          const apiUrl =
-            process.env.NEXT_PUBLIC_API_URL ??
-            "http://localhost:3002/api";
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+          if (!apiUrl) throw new Error("NEXT_PUBLIC_API_URL is not configured");
 
           const response = await fetch(`${apiUrl}/upload`, {
             method: "POST",

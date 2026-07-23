@@ -1,27 +1,40 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
-export const corsHeaders = {
-  // Booking is intentionally public and does not use cookies. Keep API responses
-  // consumable by both the website and the admin app.
-  "Access-Control-Allow-Origin": "*",
+const allowedOrigins = [
+  process.env.NEXT_PUBLIC_SITE_URL,
+  process.env.NEXT_PUBLIC_ADMIN_URL,
+].filter((origin): origin is string => Boolean(origin));
+
+export function getCorsHeaders(request?: Request) {
+  const origin = request?.headers.get("origin");
+  const allowedOrigin = origin && allowedOrigins.includes(origin)
+    ? origin
+    : allowedOrigins[0] ?? "null";
+
+  return {
+  "Access-Control-Allow-Origin": allowedOrigin,
   "Access-Control-Allow-Methods":
     "GET, POST, PUT, PATCH, DELETE, OPTIONS",
   "Access-Control-Allow-Headers":
     "Content-Type, Authorization, X-Razorpay-Signature",
-};
+  "Vary": "Origin",
+  };
+}
 
-export function ok<T>(data: T, status = 200) {
+export const corsHeaders = getCorsHeaders();
+
+export function ok<T>(data: T, status = 200, request?: Request) {
   return NextResponse.json(
     { data },
     {
       status,
-      headers: corsHeaders,
+      headers: getCorsHeaders(request),
     }
   );
 }
 
-export function fail(error: unknown, status = 500) {
+export function fail(error: unknown, status = 500, request?: Request) {
   if (error instanceof ZodError) {
     return NextResponse.json(
       {
@@ -30,7 +43,7 @@ export function fail(error: unknown, status = 500) {
       },
       {
         status: 400,
-        headers: corsHeaders,
+        headers: getCorsHeaders(request),
       }
     );
   }
@@ -44,14 +57,14 @@ export function fail(error: unknown, status = 500) {
     },
     {
       status,
-      headers: corsHeaders,
+      headers: getCorsHeaders(request),
     }
   );
 }
 
-export function options() {
+export function options(request?: Request) {
   return new NextResponse(null, {
     status: 204,
-    headers: corsHeaders,
+    headers: getCorsHeaders(request),
   });
 }

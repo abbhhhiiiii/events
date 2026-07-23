@@ -63,6 +63,7 @@ model EventBooking {
   razorpayOrderId String?   @unique
   registrationData Json?
   status       String       @default("PENDING")
+  rejectionReason String?
   createdAt    DateTime     @default(now())
   event        Event        @relation(fields: [eventId], references: [id])
   ticket       EventTicket? @relation(fields: [ticketId], references: [id])

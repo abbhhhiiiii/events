@@ -5,6 +5,8 @@ import Image from "next/image";
 import { Volume2, VolumeX, ArrowUpRight } from "lucide-react";
 import { normalizeRichTextWrapping } from "../utils";
 
+const youtubeEmbedBaseUrl = process.env.NEXT_PUBLIC_YOUTUBE_EMBED_BASE_URL;
+
 // Helper: YouTube URL to Embed URL converter
 const getYouTubeEmbedUrl = (url: string) => {
   if (!url) return "";
@@ -13,7 +15,9 @@ const getYouTubeEmbedUrl = (url: string) => {
   if (match && match[1]) {
     const videoId = match[1];
     // Exactly like gallery - no autoplay to prevent blocking
-    return `https://www.youtube.com/embed/${videoId}?controls=1&modestbranding=1&rel=0`;
+    return youtubeEmbedBaseUrl
+      ? `${youtubeEmbedBaseUrl.replace(/\/$/, "")}/${videoId}?controls=1&modestbranding=1&rel=0`
+      : "";
   }
   return url;
 };

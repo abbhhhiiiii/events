@@ -1,25 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@events/db";
 import { bookingPayloadSchema } from "../../../../lib/event-schema";
-import { fail, ok } from "../../../../lib/http";
+import { fail, getCorsHeaders, ok } from "../../../../lib/http";
+import { safelyNotifyEventBooking } from "../../../../lib/event-booking-notifications";
 
 export const dynamic = "force-dynamic";
 
 const GST_RATE = 0.18;
 
 // --- CORS HEADERS FIX ---
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "http://localhost:3000", // Tera frontend URL
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Access-Control-Allow-Credentials": "true",
-};
-
 // 1. OPTIONS METHOD EXPORT (CORS Preflight Fix)
-export async function OPTIONS() {
+export async function OPTIONS(request: Request) {
   return new NextResponse(null, {
     status: 204,
-    headers: corsHeaders,
+    headers: getCorsHeaders(request),
   });
 }
 
@@ -32,7 +26,9 @@ async function createRazorpayOrder(amount: number, receipt: string) {
 
   const authorization = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
 
-  const response = await fetch("https://api.razorpay.com/v1/orders", {
+  const razorpayApiBaseUrl = process.env.RAZORPAY_API_BASE_URL;
+  if (!razorpayApiBaseUrl) throw new Error("RAZORPAY_API_BASE_URL_NOT_CONFIGURED");
+  const response = await fetch(`${razorpayApiBaseUrl.replace(/\/$/, "")}/orders`, {
     method: "POST",
     headers: {
       Authorization: `Basic ${authorization}`,
@@ -47,8 +43,8 @@ async function createRazorpayOrder(amount: number, receipt: string) {
 }
 
 // Helper: Response me headers add karne ke liye
-function withCors(response: Response) {
-  Object.entries(corsHeaders).forEach(([key, value]) => {
+function withCors(response: Response, request: Request) {
+  Object.entries(getCorsHeaders(request)).forEach(([key, value]) => {
     response.headers.set(key, value);
   });
   return response;
@@ -63,9 +59,9 @@ export async function POST(request: Request) {
       where: { id: payload.ticketId, eventId: payload.eventId },
     });
 
-    if (!ticket) return withCors(fail(new Error("TICKET_NOT_FOUND"), 404));
+    if (!ticket) return withCors(fail(new Error("TICKET_NOT_FOUND"), 404, request), request);
     if (ticket.sold + payload.quantity > ticket.quantity) {
-      return withCors(fail(new Error("TICKET_SOLD_OUT"), 409));
+      return withCors(fail(new Error("TICKET_SOLD_OUT"), 409, request), request);
     }
 
     const isFree = ticket.isFree || ticket.price === 0;
@@ -102,8 +98,9 @@ export async function POST(request: Request) {
    
     if (isFree) {
       if (needsApproval) {
+        await safelyNotifyEventBooking(booking.id, "PENDING");
         return withCors(
-          ok({ bookingId: booking.id, free: true, approvalStatus: "PENDING_APPROVAL" })
+          ok({ bookingId: booking.id, free: true, approvalStatus: "PENDING_APPROVAL" }, 200, request), request
         );
       }
 
@@ -113,7 +110,9 @@ export async function POST(request: Request) {
         data: { sold: { increment: payload.quantity } },
       });
 
-      return withCors(ok({ bookingId: booking.id, free: true }));
+      await safelyNotifyEventBooking(booking.id, "CONFIRMED");
+
+      return withCors(ok({ bookingId: booking.id, free: true }, 200, request), request);
     }
 
   
@@ -133,9 +132,9 @@ export async function POST(request: Request) {
         amount: order.amount,
         currency: order.currency,
         requiresApproval: needsApproval, 
-      })
+      }, 200, request), request
     );
   } catch (error) {
-    return withCors(fail(error));
+    return withCors(fail(error, 500, request), request);
   }
 }

@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { prisma } from "@events/db";
 import { fail, ok } from "../../../../lib/http";
+import { safelyNotifyEventBooking } from "../../../../lib/event-booking-notifications";
 
 export const dynamic = "force-dynamic";
 
@@ -28,12 +29,13 @@ export async function POST(request: Request) {
     const payment = body.payload?.payment?.entity;
     if (!payment?.id || !payment.order_id) return fail(new Error("INVALID_WEBHOOK"), 400);
 
-    await prisma.$transaction(async (tx) => {
+    let shouldNotify = false;
+    const booking = await prisma.$transaction(async (tx) => {
       const booking = await tx.eventBooking.findUnique({
         where: { razorpayOrderId: payment.order_id },
         include: { ticket: true },
       });
-      if (!booking || booking.status === "PAID") return;
+      if (!booking || booking.status === "PAID" || booking.status === "PENDING_APPROVAL") return booking;
       if (!booking.ticket || booking.ticket.sold + booking.quantity > booking.ticket.quantity) {
         throw new Error("TICKET_SOLD_OUT");
       }
@@ -41,11 +43,19 @@ export async function POST(request: Request) {
         where: { id: booking.ticket.id },
         data: { sold: { increment: booking.quantity } },
       });
-      await tx.eventBooking.update({
+      const finalStatus = booking.ticket.requiresApproval ? "PENDING_APPROVAL" : "PAID";
+      shouldNotify = true;
+      return tx.eventBooking.update({
         where: { id: booking.id },
-        data: { status: "PAID", paymentId: payment.id },
+        data: { status: finalStatus, paymentId: payment.id },
       });
     });
+    if (booking && shouldNotify) {
+      await safelyNotifyEventBooking(
+        booking.id,
+        booking.status === "PENDING_APPROVAL" ? "PENDING" : "CONFIRMED",
+      );
+    }
     return ok({ received: true });
   } catch (error) {
     return fail(error);

@@ -1,20 +1,14 @@
 import { prisma } from "@events/db";
 import { mapEvent } from "../../../../lib/event-mapper";
 import { eventPayloadSchema } from "../../../../lib/event-schema";
-import { fail, ok } from "../../../../lib/http";
+import { fail, getCorsHeaders, ok } from "../../../../lib/http";
 
 import { NextResponse } from "next/server";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "http://localhost:3001",
-  "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
-export async function OPTIONS() {
+export async function OPTIONS(request: Request) {
   return new NextResponse(null, {
     status: 204,
-    headers: corsHeaders,
+    headers: getCorsHeaders(request),
   });
 }
 

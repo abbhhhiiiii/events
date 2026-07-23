@@ -27,11 +27,6 @@ const nextConfig: NextConfig = {
         hostname: "media.smebusinessforum.com",
       },
       
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "5000",
-      },
     ],
   },
 };

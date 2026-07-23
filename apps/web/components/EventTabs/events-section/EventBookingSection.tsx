@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const GST_RATE = 0.18;
 
 const addGst = (amount: number) =>
@@ -36,6 +36,11 @@ export default function EventBookingSection({ event }: { event: any }) {
   );
 
   useEffect(() => {
+    if (!API_URL) {
+      setError("NEXT_PUBLIC_API_URL is not configured");
+      setTicketsLoading(false);
+      return;
+    }
     setTicketsLoading(true);
     setError("");
 

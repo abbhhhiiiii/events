@@ -9,7 +9,7 @@ type Booking = EventBooking & {
   ticket?: { name: string; requiresApproval?: boolean };
 };
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api";
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const label = (key: string) =>
   key.replace(/([A-Z])/g, " $1").replace(/^./, (value) => value.toUpperCase());
@@ -33,6 +33,8 @@ export function BookingManagement({ bookings }: { bookings: Booking[] }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [rejectingBooking, setRejectingBooking] = useState<Booking | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const byEvent = bookings.reduce<Record<string, Booking[]>>((groups, booking) => {
     const key = String(booking.eventId);
@@ -44,18 +46,26 @@ export function BookingManagement({ bookings }: { bookings: Booking[] }) {
   const activeBookings = activeEventId ? byEvent[activeEventId] ?? [] : [];
   const activeEventName = activeBookings[0]?.event?.name ?? (activeEventId ? `Event #${activeEventId}` : "");
 
-  const decide = async (id: string, action: "APPROVE" | "REJECT") => {
+  const decide = async (id: string, action: "APPROVE" | "REJECT", reason?: string) => {
+    if (!apiBaseUrl) {
+      setError("NEXT_PUBLIC_API_URL is not configured");
+      return;
+    }
     setUpdating(id);
     setError("");
     try {
       const response = await fetch(`${apiBaseUrl}/admin/event-bookings/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, rejectionReason: reason }),
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Could not update booking");
       router.refresh();
+      if (action === "REJECT") {
+        setRejectingBooking(null);
+        setRejectionReason("");
+      }
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not update booking");
     } finally {
@@ -127,13 +137,14 @@ export function BookingManagement({ bookings }: { bookings: Booking[] }) {
                       <button onClick={() => setExpanded(isOpen ? null : booking.id)} className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700">{isOpen ? "Hide details" : "View form"}</button>
                       {pending && <>
                         <button disabled={updating === booking.id} onClick={() => decide(booking.id, "APPROVE")} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-60">Approve</button>
-                        <button disabled={updating === booking.id} onClick={() => decide(booking.id, "REJECT")} className="rounded-md bg-red-600 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-60">Reject</button>
+                        <button disabled={updating === booking.id} onClick={() => { setRejectingBooking(booking); setRejectionReason(""); }} className="rounded-md bg-red-600 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-60">Reject</button>
                       </>}
                     </div>
                   </div>
                   {isOpen && <div className="mt-5 grid grid-cols-1 gap-3 rounded-lg bg-slate-50 p-4 text-sm sm:grid-cols-2">
                     <p><b>Booked:</b> {new Date(booking.createdAt).toLocaleString()}</p>
                     <p><b>Payment ID:</b> {booking.paymentId ?? "Awaiting payment"}</p>
+                    {booking.rejectionReason && <p className="sm:col-span-2"><b>Rejection reason:</b> {booking.rejectionReason}</p>}
                     {Object.entries(booking.registrationData ?? {}).map(([key, value]) => <p key={key}><b>{label(key)}:</b> {typeof value === "boolean" ? (value ? "Yes" : "No") : String(value || "—")}</p>)}
                   </div>}
                 </article>
@@ -143,6 +154,37 @@ export function BookingManagement({ bookings }: { bookings: Booking[] }) {
         </section>
       </>}
       {!bookings.length && <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">No bookings yet.</div>}
+      {rejectingBooking && <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4" role="dialog" aria-modal="true" aria-labelledby="reject-booking-title">
+        <form
+          className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const reason = rejectionReason.trim();
+            if (reason.length < 3) {
+              setError("Please enter a rejection reason of at least 3 characters.");
+              return;
+            }
+            decide(rejectingBooking.id, "REJECT", reason);
+          }}
+        >
+          <h2 id="reject-booking-title" className="text-xl font-bold text-slate-900">Reject booking</h2>
+          <p className="mt-2 text-sm text-slate-600">Add the reason that will be emailed to <strong>{rejectingBooking.attendeeName}</strong>.</p>
+          <textarea
+            autoFocus
+            required
+            minLength={3}
+            maxLength={1000}
+            value={rejectionReason}
+            onChange={(event) => setRejectionReason(event.target.value)}
+            placeholder="Example: This ticket is reserved for verified members only."
+            className="mt-4 min-h-28 w-full rounded-lg border border-slate-300 p-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          />
+          <div className="mt-5 flex justify-end gap-3">
+            <button type="button" disabled={updating === rejectingBooking.id} onClick={() => { setRejectingBooking(null); setRejectionReason(""); }} className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">Cancel</button>
+            <button type="submit" disabled={updating === rejectingBooking.id || rejectionReason.trim().length < 3} className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">{updating === rejectingBooking.id ? "Rejecting..." : "Reject & email reason"}</button>
+          </div>
+        </form>
+      </div>}
     </div>
   );
 }

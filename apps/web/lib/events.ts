@@ -82,10 +82,14 @@ export const demoEvents: PlatformEvent[] = [
   }
 ];
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api";
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 
 async function apiFetch<T>(path: string, fallback: T): Promise<T> {
+  if (!apiBaseUrl) {
+    console.error("NEXT_PUBLIC_API_URL is not configured");
+    return fallback;
+  }
   try {
     const response = await fetch(`${apiBaseUrl}${path}`, {
       next: { revalidate: 300 }

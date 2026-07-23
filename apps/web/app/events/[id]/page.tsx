@@ -49,23 +49,19 @@ export default async function EventDetailPage({ params }: Props) {
     notFound();
   }
 
-  // Tickets tab removed from here — ab sidebar me hai
-  const tabs = [
-    { label: "Overview", id: "overview", exists: event.overview },
-    { label: "Media Kit", id: "media-kit", exists: event.mediaKit },
-    { label: "Agenda", id: "agenda", exists: event.agenda?.length },
-    { label: "Speakers", id: "speakers", exists: event.speakers?.length },
-    { label: "Sponsors", id: "sponsors", exists: event.sponsors?.length },
-    { label: "Venue", id: "venue", exists: event.venue },
-    {
-      label: "General Info",
-      id: "general-info",
-      exists: Array.isArray(event.info)
-        ? event.info.length
-        : Boolean((event.info as { content?: string } | undefined)?.content),
-    },
-    { label: "Contact Us", id: "contact", exists: event.contactUs },
-  ].filter((tab) => Boolean(tab.exists));
+  // 1. DYNAMIC TABS LOGIC (Sirf wahi tabs banenge jinka data backend se aayega)
+  const tabs = [];
+  
+  if (event.overview) tabs.push({ id: "overview", label: "Overview" });
+  if (event.mediaKit) tabs.push({ id: "media-kit", label: "Media Kit" });
+  if (event.agenda && event.agenda.length > 0) tabs.push({ id: "agenda", label: "Agenda" });
+  if (event.speakers && event.speakers.length > 0) tabs.push({ id: "speakers", label: "Speakers" });
+  if (event.sponsors && event.sponsors.length > 0) tabs.push({ id: "sponsors", label: "Sponsors" });
+  if (event.venue) tabs.push({ id: "venue", label: "Venue" });
+  if (event.info && (Array.isArray(event.info) ? event.info.length > 0 : (event.info as any)?.content)) {
+    tabs.push({ id: "general-info", label: "General Info" });
+  }
+  if (event.contactUs) tabs.push({ id: "contact", label: "Contact Us" });
 
   const overviewData = event.overview as any;
 
@@ -133,75 +129,94 @@ export default async function EventDetailPage({ params }: Props) {
       </div>
 
       {/* MOBILE NAVIGATION */}
-      <div className="lg:hidden sticky top-[60px] md:top-[80px] z-40 bg-white border-b border-gray-200 shadow-sm overflow-x-auto scrollbar-hide">
-        <div className="flex px-4 min-w-max">
-          {tabs.map((tab) => (
-            <Link
-              key={tab.id}
-              href={`#${tab.id}`}
-              className="px-4 py-3.5 text-sm font-medium text-gray-600 hover:text-[#008DD2] whitespace-nowrap border-b-2 border-transparent hover:border-[#008DD2] transition-colors"
-            >
-              {tab.label}
-            </Link>
-          ))}
+      {tabs.length > 0 && (
+        <div className="lg:hidden sticky top-[60px] md:top-[80px] z-40 bg-white border-b border-gray-200 shadow-sm overflow-x-auto scrollbar-hide">
+          <div className="flex px-4 min-w-max">
+            {tabs.map((tab) => (
+              <Link
+                key={tab.id}
+                href={`#${tab.id}`}
+                className="px-4 py-3.5 text-sm font-medium text-gray-600 hover:text-[#008DD2] whitespace-nowrap border-b-2 border-transparent hover:border-[#008DD2] transition-colors"
+              >
+                {tab.label}
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* MAIN LAYOUT GRID */}
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-10 flex flex-col lg:flex-row gap-6 xl:gap-8 items-start">
 
         {/* COLUMN 1: LEFT SIDEBAR */}
-        <aside className="hidden lg:block sticky top-32 w-56 xl:w-64 shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <nav className="flex flex-col py-2">
-            {tabs.map((tab) => (
-              <Link
-                key={tab.id}
-                href={`#${tab.id}`}
-                className="px-5 py-3 text-sm font-medium text-gray-600 hover:text-[#008DD2] hover:bg-blue-50/50 border-l-2 border-transparent hover:border-[#008DD2] transition-colors"
-              >
-                {tab.label}
-              </Link>
-            ))}
-          </nav>
-        </aside>
+        {tabs.length > 0 && (
+          <aside className="hidden lg:block sticky top-32 w-56 xl:w-64 shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <nav className="flex flex-col py-2">
+              {tabs.map((tab) => (
+                <Link
+                  key={tab.id}
+                  href={`#${tab.id}`}
+                  className="px-5 py-3 text-sm font-medium text-gray-600 hover:text-[#008DD2] hover:bg-blue-50/50 border-l-2 border-transparent hover:border-[#008DD2] transition-colors"
+                >
+                  {tab.label}
+                </Link>
+              ))}
+            </nav>
+          </aside>
+        )}
 
-        {/* COLUMN 2: CENTER (Tickets section removed from here) */}
+        {/* COLUMN 2: CENTER - Sirf available sections render honge */}
         <div className="flex-1 w-full min-w-0 space-y-12 md:space-y-16">
+          {event.overview && (
+            <div id="overview" className="scroll-mt-32">
+              <OverviewSection overview={event.overview} />
+            </div>
+          )}
 
-          <div id="overview" className="scroll-mt-32">
-            <OverviewSection overview={event.overview} />
-          </div>
+          {event.mediaKit && (
+            <div id="media-kit" className="scroll-mt-32">
+              <MediaKitSection mediaKit={event.mediaKit} />
+            </div>
+          )}
 
-          <div id="media-kit" className="scroll-mt-32">
-            <MediaKitSection mediaKit={event.mediaKit} />
-          </div>
+          {event.agenda && event.agenda.length > 0 && (
+            <div id="agenda" className="scroll-mt-32">
+              <AgendaSection agenda={event.agenda} allSpeakers={event.speakers} />
+            </div>
+          )}
 
-          <div id="agenda" className="scroll-mt-32">
-            <AgendaSection agenda={event.agenda} allSpeakers={event.speakers} />
-          </div>
+          {event.speakers && event.speakers.length > 0 && (
+            <div id="speakers" className="scroll-mt-32">
+              <SpeakersSection speakers={event.speakers} />
+            </div>
+          )}
 
-          <div id="speakers" className="scroll-mt-32">
-            <SpeakersSection speakers={event.speakers} />
-          </div>
+          {event.sponsors && event.sponsors.length > 0 && (
+            <div id="sponsors" className="scroll-mt-32">
+              <SponsorsSection sponsors={event.sponsors} />
+            </div>
+          )}
 
-          <div id="sponsors" className="scroll-mt-32">
-            <SponsorsSection sponsors={event.sponsors} />
-          </div>
+          {event.venue && (
+            <div id="venue" className="scroll-mt-32">
+              <VenueSection venue={event.venue} location={event.location} galleryImages={event.galleryImages} />
+            </div>
+          )}
 
-          <div id="venue" className="scroll-mt-32">
-            <VenueSection venue={event.venue} location={event.location} galleryImages={event.galleryImages} />
-          </div>
+          {event.info && (Array.isArray(event.info) ? event.info.length > 0 : (event.info as any)?.content) && (
+            <div id="general-info" className="scroll-mt-32">
+              <GeneralInfoSection info={event.info} />
+            </div>
+          )}
 
-          <div id="general-info" className="scroll-mt-32">
-            <GeneralInfoSection info={event.info} />
-          </div>
-
-          <div id="contact" className="scroll-mt-32">
-            <ContactSection contactUs={event.contactUs} />
-          </div>
+          {event.contactUs && (
+            <div id="contact" className="scroll-mt-32">
+              <ContactSection contactUs={event.contactUs} />
+            </div>
+          )}
         </div>
 
-        {/* COLUMN 3: RIGHT SIDEBAR — Tickets ab yahan hai */}
+        {/* COLUMN 3: RIGHT SIDEBAR — Tickets */}
         <aside
           className="w-full lg:w-[320px] xl:w-[350px] shrink-0 sticky top-32 bg-white p-6 rounded-xl shadow-sm border border-gray-200"
           id="book"
