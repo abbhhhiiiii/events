@@ -13,10 +13,10 @@ export default function MediaKit({ data, onChange }: SectionProps) {
   // Safe default structure with backward compatibility for old data format
   const currentData = data || {};
   
-  // Agar purana 'description' tha toh usko 'content' me daal do
+  // Copy the legacy description into content when present.
   const content = currentData.content ?? currentData.description ?? "";
   
-  // Agar purana 'files' array tha toh uski pehli file ka URL utha lo
+  // Use the first legacy file URL when available.
   const brochureUrl = currentData.brochureUrl ?? (currentData.files?.[0]?.url) ?? "";
 
   const handleEditorChange = (val: string) => {

@@ -19,16 +19,16 @@ async function findEvent(id: number) {
   return prisma.event.findUnique({ where: { id }, include: { tickets: true } });
 }
 export async function GET(
-  _: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const event = await findEvent(Number((await params).id));
     return event
-      ? ok(mapEvent(event))
-      : fail(new Error("EVENT_NOT_FOUND"), 404);
+      ? ok(mapEvent(event), 200, request)
+      : fail(new Error("EVENT_NOT_FOUND"), 404, request);
   } catch (error) {
-    return fail(error);
+    return fail(error, 500, request);
   }
 }
 export async function PUT(
@@ -52,7 +52,7 @@ export async function PUT(
       }
     });
 
-    if (!existingEvent) return fail(new Error("EVENT_NOT_FOUND"), 404);
+    if (!existingEvent) return fail(new Error("EVENT_NOT_FOUND"), 404, request);
     
     const payload = eventPayloadSchema.parse(await request.json());
 
@@ -73,7 +73,7 @@ export async function PUT(
     const unsafeDeletes = ticketsToDelete.filter(t => t._count.bookings > 0);
     if (unsafeDeletes.length > 0) {
       const unsafeNames = unsafeDeletes.map(t => t.name).join(", ");
-      return fail(new Error(`Cannot delete tickets with existing bookings: ${unsafeNames}`), 400);
+      return fail(new Error(`Cannot delete tickets with existing bookings: ${unsafeNames}`), 400, request);
     }
 
     const idsToDelete = ticketsToDelete.map(t => t.id);
@@ -168,22 +168,22 @@ export async function PUT(
       });
     });
 
-    if (!event) return fail(new Error("EVENT_NOT_FOUND"), 404);
+    if (!event) return fail(new Error("EVENT_NOT_FOUND"), 404, request);
 
-    return ok(mapEvent(event));
+    return ok(mapEvent(event), 200, request);
   } catch (error) {
-    return fail(error);
+    return fail(error, 500, request);
   }
 }
 export async function DELETE(
-  _: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const id = Number((await params).id);
     await prisma.event.delete({ where: { id } });
-    return ok({ deleted: true });
+    return ok({ deleted: true }, 200, request);
   } catch (error) {
-    return fail(error);
+    return fail(error, 500, request);
   }
 }

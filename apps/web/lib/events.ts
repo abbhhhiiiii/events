@@ -129,12 +129,12 @@ export async function getPastEvents() {
   const events = await listEvents();
   const now = new Date();
   
-  // 1. Filter: Jo events aaj se pehle ke hain
-  // 2. Status: Sirf 'ARCHIVED' ya purane events
+  // 1. Filter events that occurred before today.
+  // 2. Include only archived or past events.
   return events
     .filter((event) => event.startDate && new Date(event.startDate) < now)
     .map((event) => ({
       ...event,
-      status: "ARCHIVED" as const, // Status ko explicitly archived set kar rahe hain
+      status: "ARCHIVED" as const, // Explicitly set the status to archived.
     }));
 }

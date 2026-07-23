@@ -10,14 +10,14 @@ export function EventCard({ event }: { event: PlatformEvent }) {
   const date = event.startDate ? new Date(event.startDate) : null;
 
   return (
-    // 'group' add kiya taaki hover effects baad mein use kar sako
+    // Add a group class for hover effects.
     <article className="event-card bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
     <Link
   href={`/events/${event.id}`}
   className="relative block aspect-video w-full overflow-hidden bg-gray-100"
   aria-label={`View ${event.name}`}
 >
-  {/* 1. Blur Background Layer (Side ki jagah bharne ke liye) */}
+  {/* Blurred background layer that fills the side space. */}
   <Image 
     src={image} 
     alt="" 
@@ -26,7 +26,7 @@ export function EventCard({ event }: { event: PlatformEvent }) {
     sizes="(max-width: 768px) 100vw, 33vw"
   />
 
-  {/* 2. Main Image (Contain mode mein, taaki puri dikhe) */}
+  {/* Main image using contain mode to keep it fully visible. */}
   <Image 
     src={image} 
     alt={event.name} 

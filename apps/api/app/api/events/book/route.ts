@@ -42,7 +42,7 @@ async function createRazorpayOrder(amount: number, receipt: string) {
   return (await response.json()) as { id: string; amount: number; currency: string };
 }
 
-// Helper: Response me headers add karne ke liye
+// Add CORS headers to a response.
 function withCors(response: Response, request: Request) {
   Object.entries(getCorsHeaders(request)).forEach(([key, value]) => {
     response.headers.set(key, value);

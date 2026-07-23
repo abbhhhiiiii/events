@@ -16,15 +16,15 @@ export const dynamic = "force-dynamic";
 const json = (value: unknown) =>
   value === null || value === undefined ? undefined : (value as never);
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const events = await prisma.event.findMany({
       include: { tickets: true },
       orderBy: { startDate: "asc" },
     });
-    return ok(events.map(mapEvent));
+    return ok(events.map(mapEvent), 200, request);
   } catch (error) {
-    return fail(error);
+    return fail(error, 500, request);
   }
 }
 
@@ -68,8 +68,8 @@ export async function POST(request: Request) {
       },
       include: { tickets: true },
     });
-    return ok(mapEvent(event), 201);
+    return ok(mapEvent(event), 201, request);
   } catch (error) {
-    return fail(error);
+    return fail(error, 500, request);
   }
 }

@@ -32,7 +32,7 @@ export default function Agenda({
   const items = Array.isArray(data) ? data : [];
 
   const speakersList = availableSpeakers.flatMap((section: any) => {
-    // Naye structure me speakers nested hain
+    // Speakers are nested in the current structure.
     if (section.speakers) {
       return section.speakers;
     }

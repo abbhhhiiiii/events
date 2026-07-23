@@ -122,7 +122,7 @@
 //   ""
 // )
 //   .replace(/<[^>]*>/g, "")   // HTML tags remove
-//   .replace(/&nbsp;/g, " ")   // &nbsp; ko space banao
+//   .replace(/&nbsp;/g, " ")   // Replace non-breaking spaces with regular spaces.
 //   .replace(/&amp;/g, "&")    // optional
 //   .replace(/\s+/g, " ")      // extra spaces remove
 //   .trim();
@@ -139,7 +139,7 @@
 //                 className="object-cover"
 //               />
 
-//               {/* Dark Gradient Overlay (Left se dark, right me transparent) */}
+//               {/* Dark gradient overlay: dark on the left and transparent on the right. */}
 //               <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/50 pointer-events-none" />
 
 //               {/* Content Box Container */}
@@ -172,10 +172,10 @@
 //     </h1>
 
 //     {/* Meta Info (Date, Time, Location) */}
-//    {/* Meta Info Container - Flex Col (Taki Location neeche aaye) */}
+//    {/* Metadata container: use a column layout to place the location below. */}
 // <div className="flex flex-col gap-1.5 md:gap-2 text-xs sm:text-sm md:text-base text-white/90">
   
-//   {/* Row 1: Date aur Time */}
+//   {/* Row 1: date and time */}
 //   <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
 //     {ev.startDate && (
 //       <div className="flex items-center gap-1.5">
@@ -198,7 +198,7 @@
 //     )}
 //   </div>
 
-//   {/* Row 2: Location (Hamesha ek nayi line par) */}
+//   {/* Row 2: always place the location on a new line. */}
 //   {ev.location && (
 //     <div className="flex items-start md:items-center gap-1.5">
 //       <MapPin size={14} className="md:w-5 md:h-5 shrink-0 mt-0.5 md:mt-0" />

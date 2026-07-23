@@ -103,7 +103,7 @@ export default function EventRegistrationForm({ eventId, eventName, ticket }: { 
     setError("");
 
     try {
-      // YEH FUNCTION RAZORPAY KHOLTA HAI !
+      // This function opens Razorpay checkout.
       await bookEvent(
         {
           eventId,
@@ -127,10 +127,10 @@ export default function EventRegistrationForm({ eventId, eventName, ticket }: { 
         eventName
       );
       
-      // Yahan code tabhi aayega jab PAYMENT SUCCESS ho jayegi
+      // This runs only after successful payment verification.
       setSuccess(true);
     } catch (e) {
-      // Agar user payment modal close kar dega toh error me aayega
+      // Closing the payment modal returns an error.
       setError(e instanceof Error ? e.message : "Registration failed. Please try again.");
     } finally {
       setLoading(false);

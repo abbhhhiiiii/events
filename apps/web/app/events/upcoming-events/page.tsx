@@ -8,10 +8,10 @@ export const metadata = {
 };
 
 export default async function UpcomingEventsPage() {
-  // Data fetch kar rahe hain server component mein
+  // Fetch data in the server component.
   const events = await getUpcomingEvents();
   
-  // Optional: Sirf published events show karne ke liye filter
+  // Optionally display only published events.
   const upcoming = events.filter(e => e.status === "DRAFT");
 
   return (

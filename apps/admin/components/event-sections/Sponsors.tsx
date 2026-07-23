@@ -8,7 +8,7 @@ import { Trash2, ArrowUp, ArrowDown, Plus, X } from "lucide-react";
 interface SponsorItem {
   name: string;
   logo: string;
-  website: string; // Naye UI me websiteUrl tha, maine use backend safety ke liye 'website' kar diya hai
+  website: string; // Use the backend-compatible website field instead of websiteUrl.
 }
 
 interface SponsorSection {

@@ -32,7 +32,7 @@ const AVAILABLE_SECTIONS = [
   { id: "book", label: "Book" },
 ] as const;
 
-// Existing event me jis section me data hai, use "added" maano
+// Treat sections with existing event data as added.
 function activeSectionsFrom(event?: AdminEvent | null): string[] {
   if (!event) return [];
   const active: string[] = [];

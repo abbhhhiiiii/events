@@ -10,7 +10,7 @@ export function MediaKitSection({ mediaKit }: { mediaKit: any }) {
   const legacyVideos = mediaKit.videos || [];
   const title = mediaKit.title || "Media Kit & Resources";
 
-  // Agar poora tab hi khali hai toh kuch render mat karo
+  // Do not render an empty tab.
   if (!content && !brochureUrl && legacyVideos.length === 0) return null;
 
   return (
@@ -56,7 +56,7 @@ export function MediaKitSection({ mediaKit }: { mediaKit: any }) {
         )}
       </div>
 
-      {/* LEGACY VIDEOS: (Sirf tab dikhenge agar purane event me pehle se save the) */}
+      {/* Legacy videos are shown only when they were already saved on the event. */}
       {legacyVideos.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10 pt-8 border-t border-slate-100">
           {legacyVideos.map((video: string, idx: number) => (

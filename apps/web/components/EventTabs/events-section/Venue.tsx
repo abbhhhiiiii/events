@@ -13,7 +13,7 @@ export function VenueSection({
 }) {
   if (!venue && !location && !(galleryImages?.length)) return null;
 
-  // Safe variables fallback ke sath
+  // Safe fallback variables.
   const venueName = venue?.name || location || "Event Venue";
   const venueAddress = venue?.address || location || "";
   const mapUrl = venue?.mapUrl || "";
@@ -86,7 +86,7 @@ export function VenueSection({
               {images.map((imgUrl, idx) => (
                 <div
                   key={idx}
-                  // Agar 3 images hain, toh pehli image badi dikhegi (span-2), baaki 2 niche choti.
+                  // For three images, make the first image larger and place the other two below it.
                   className={`relative rounded-xl overflow-hidden border border-gray-200 shadow-sm group ${
                     images.length === 3 && idx === 0 
                       ? 'col-span-2 aspect-[21/9]' 

@@ -9,12 +9,12 @@ export function SpeakersSection({ speakers }: { speakers: any[] }) {
   const [selectedSpeaker, setSelectedSpeaker] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
 
-  // Next.js mein portal client-side pe render karne ke liye mounted check
+  // Ensure the portal is rendered only on the client.
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Modal khulne par background scroll lock karne ke liye
+  // Lock background scrolling while the modal is open.
   useEffect(() => {
     if (selectedSpeaker) {
       document.body.style.overflow = "hidden";
@@ -26,7 +26,7 @@ export function SpeakersSection({ speakers }: { speakers: any[] }) {
     };
   }, [selectedSpeaker]);
 
-  // Agar koi speakers nahi hain toh section hide kardo
+  // Hide the section when no speakers are available.
   if (!speakers?.length) return null;
 
   return (

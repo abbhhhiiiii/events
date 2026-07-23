@@ -27,16 +27,16 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   
-  // URL check karne ke liye hook
+  // Read the current URL.
   const pathname = usePathname();
   
-  // Agar URL mein "/events" aata hai, toh isEventPage true ho jayega
+  // Mark event pages based on the current URL.
   const isEventPage = pathname?.includes("/events");
   
-  // Agar Events page hai YA user ne scroll kiya hai, toh Header White rahega
+  // Keep the header white on event pages or after scrolling.
   const forceWhite = isEventPage || isScrolled;
 
-  // Scroll track karne ke liye effect
+  // Track scrolling.
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 20) {
@@ -51,10 +51,10 @@ export function Header() {
   }, []);
 
   return (
-    // Header fixed taaki hero section par float kare
+    // Keep the header fixed so it floats over the hero section.
     <header className="fixed top-0 z-50 w-full flex flex-col transition-all duration-500">
       
-      {/* Top Utility Bar - Hamesha Black/Premium Dark rahega */}
+      {/* Top utility bar */}
       <div className="bg-[#0a0a0a] text-white/80 py-1 border-b border-white/10">
         <div className="max-w-[1630px] mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center text-xs md:text-sm font-medium">
           
@@ -89,7 +89,7 @@ export function Header() {
         </div>
       </div>
 
-      {/* Main Navbar - isScrolled ki jagah forceWhite use kiya hai */}
+      {/* Main navigation uses forceWhite instead of isScrolled. */}
       <div 
         className={`transition-all duration-500 ease-in-out ${
           forceWhite ? "bg-white shadow-lg py-2" : "bg-transparent py-0"

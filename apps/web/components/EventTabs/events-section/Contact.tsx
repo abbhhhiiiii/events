@@ -13,7 +13,7 @@ export function ContactSection({ contactUs }: { contactUs: any }) {
   // Check if content is actually empty or just contains empty HTML tags like <p><br></p>
   const isContentEmpty = !content || content.replace(/<[^>]*>?/gm, '').trim() === '';
 
-  // Agar koi bhi contact detail nahi hai, toh section render nahi hoga
+  // Do not render the section when no contact details are available.
   if (isContentEmpty && !email && !phone && !person) return null;
 
   return (

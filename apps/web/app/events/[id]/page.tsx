@@ -49,7 +49,7 @@ export default async function EventDetailPage({ params }: Props) {
     notFound();
   }
 
-  // 1. DYNAMIC TABS LOGIC (Sirf wahi tabs banenge jinka data backend se aayega)
+  // Build tabs only for sections that have data.
   const tabs = [];
   
   if (event.overview) tabs.push({ id: "overview", label: "Overview" });
@@ -165,7 +165,7 @@ export default async function EventDetailPage({ params }: Props) {
           </aside>
         )}
 
-        {/* COLUMN 2: CENTER - Sirf available sections render honge */}
+        {/* Center column: render only available sections. */}
         <div className="flex-1 w-full min-w-0 space-y-12 md:space-y-16">
           {event.overview && (
             <div id="overview" className="scroll-mt-32">

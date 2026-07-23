@@ -8,7 +8,7 @@ interface VenueData {
   name: string;
   address: string;
   mapUrl: string;
-  notes: string; // Purane data structure ke hisab se safe rakha gaya hai
+  notes: string; // Preserved for compatibility with the legacy data structure.
 }
 
 interface VenueProps {

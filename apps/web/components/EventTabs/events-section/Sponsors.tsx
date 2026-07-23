@@ -21,7 +21,7 @@ export function SponsorsSection({ sponsors }: { sponsors: any[] }) {
 
       <div className="mt-12 space-y-16">
         {sectionsToRender.map((section, sIdx) => {
-          // Agar section me koi sponsor nahi hai, toh usko skip karo
+          // Skip sections without sponsors.
           if (!section.sponsors?.length) return null;
 
           return (
@@ -33,7 +33,7 @@ export function SponsorsSection({ sponsors }: { sponsors: any[] }) {
                   <h3 className="text-gray-700 text-sm sm:text-base whitespace-nowrap">
                     {section.sectionTitle}
                   </h3>
-                  {/* Ye div baaki bachi hui jagah me line bana dega */}
+                  {/* Fill the remaining horizontal space with a line. */}
                   <div className="h-px bg-gray-200 flex-1"></div>
                 </div>
               )}
@@ -65,7 +65,7 @@ export function SponsorsSection({ sponsors }: { sponsors: any[] }) {
                   // Website URL check (handles both possible API properties)
                   const websiteUrl = sponsor.website || sponsor.websiteUrl;
 
-                  // Agar website link hai, toh a-tag se wrap karo, warna normal div
+                  // Wrap with a link when a website URL is available.
                   return websiteUrl ? (
                     <a
                       key={idx}

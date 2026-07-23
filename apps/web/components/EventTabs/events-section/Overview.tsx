@@ -22,7 +22,7 @@ const getYouTubeEmbedUrl = (url: string) => {
   return url;
 };
 
-// Sub-Component: Har video ko individually handle karne ke liye
+// Render and manage each video independently.
 const SponsoredVideoCard = ({ item }: { item: any }) => {
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -53,7 +53,7 @@ const SponsoredVideoCard = ({ item }: { item: any }) => {
     <div className="flex flex-col items-center w-full group relative">
       <div className="relative w-full h-56 md:h-64 rounded-xl overflow-hidden shadow-sm bg-black border border-slate-200">
         
-        {/* Uploaded Local Videos ke liye hi Mute button aayega */}
+        {/* Show the mute control only for uploaded local videos. */}
         {!isYouTube && (
           <button
             onClick={toggleMute}

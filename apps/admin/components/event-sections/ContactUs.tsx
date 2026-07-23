@@ -10,11 +10,11 @@ interface SectionProps {
 }
 
 export default function ContactUs({ data, onChange }: SectionProps) {
-  // Safe parsing: Agar data string hai toh wahi use karo, warna object se 'content' nikal lo
+  // Safely use a string value or extract content from an object.
   const content = typeof data === "string" ? data : (data?.content || "");
 
   const handleContentChange = (val: string) => {
-    // Purane data format (email, phone) ko safe rakhne ke liye object merge kar rahe hain
+    // Merge legacy email and phone data to preserve existing values.
     const newData = typeof data === "object" && data !== null ? { ...data } : {};
     newData.content = val;
     onChange(newData);

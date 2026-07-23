@@ -62,7 +62,7 @@ export default function EventBookingSection({ event }: { event: any }) {
 
   const handleBookTicket = () => {
     if (!selected || bookingClosed) return;
-    // Agla page: form + payment yahan khulega
+    // Open the registration form and payment page.
     router.push(`/events/${event.id}/register?ticketId=${selected.id}`);
   };
 

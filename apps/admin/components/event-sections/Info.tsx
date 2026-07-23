@@ -10,7 +10,7 @@ interface SectionProps {
 }
 
 export default function Info({ data, onChange }: SectionProps) {
-  // Safe parsing: Legacy array format, simple string, aur naye object format teeno ko handle karega
+  // Safely handle legacy arrays, plain strings, and the current object format.
   let content = "";
   
   if (typeof data === "string") {

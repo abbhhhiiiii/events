@@ -1,54 +1,56 @@
 # Database Package
 
-Prisma schema yahan hai:
+The Prisma schema is located at:
 
 ```txt
 packages/db/prisma/schema.prisma
 ```
 
-Real database URL yahan set karo:
+Set the production database URL in:
 
 ```txt
 packages/db/.env
 apps/api/.env.local
 ```
 
-Saare commands root se run karo:
+Run all commands from the project root:
 
 ```txt
 C:\Users\Admin\Desktop\event
 ```
 
-## Agar Schema Change Kiya
+## After Changing the Schema
 
-`schema.prisma` edit karne ke baad:
+After editing `schema.prisma`:
 
 ```bash
 npm run db:push
 npm run db:generate
+
+npx prisma studio --schema packages/db/prisma/schema.prisma
 ```
 
-- `db:push` database tables ko schema ke hisaab se update karta hai.
-- `db:generate` Prisma Client regenerate karta hai.
+- `db:push` updates database tables to match the schema.
+- `db:generate` regenerates Prisma Client.
 
-## Agar Database Se Schema Pull Karna Ho
+## Pulling the Schema from the Database
 
-Database me direct table/column changes kiye ho to:
+If tables or columns were changed directly in the database:
 
 ```bash
 npm run db:pull
 npm run db:generate
 ```
 
-- `db:pull` database ka current structure `schema.prisma` me laata hai.
-- `db:generate` pulled schema ke hisaab se Prisma Client banata hai.
+- `db:pull` writes the current database structure to `schema.prisma`.
+- `db:generate` generates Prisma Client from the pulled schema.
 
-## Check Aur Studio
+## Validation and Studio
 
 ```bash
 npm run db:validate
 npm run db:studio
 ```
 
-- `db:validate` schema valid hai ya nahi check karta hai.
-- `db:studio` browser me database UI open karta hai.
+- `db:validate` checks whether the schema is valid.
+- `db:studio` opens the database UI in the browser.
